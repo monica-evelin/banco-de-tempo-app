@@ -31,7 +31,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     alignItems: "center",
     marginTop: 20,
-    marginBottom: 30,
+    marginBottom: 5,
   },
 
   login_buttonText: {
