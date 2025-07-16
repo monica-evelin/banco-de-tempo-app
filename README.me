@@ -1,9 +1,11 @@
 # Banco de Tempo
 
-## Description  
+## Description
+
 A mobile app for managing appointments and time exchanges between users. It supports user registration, login, viewing and creating appointments, profile editing with photo upload, calendar integration, and smooth navigation.
 
-## Technologies  
+## Technologies
+
 - React Native with Expo  
 - Firebase Authentication, Firestore, and Storage  
 - React Navigation (Bottom Tabs, Stack Navigator)  
@@ -12,61 +14,53 @@ A mobile app for managing appointments and time exchanges between users. It supp
 
 ## How to Run the Project
 
-1. Clone the repository:  
+1. Clone the repository:
+
 ```bash
 git clone https://github.com/seu-usuario/seu-repositorio.git
-Install dependencies:
+```
 
-bash
-Copy
-Edit
+2. Install dependencies:
+
+```bash
 npm install
-Configure Firebase:
+```
 
-Create a Firebase project
+3. Configure Firebase:
 
-Enable Email/Password Authentication
+- Create a Firebase project  
+- Enable Email/Password Authentication  
+- Set up Firestore and Storage  
+- Update `firebaseConfig.js` with your Firebase credentials  
 
-Set up Firestore and Storage
+4. Start the app:
 
-Update firebaseConfig.js with your Firebase credentials
-
-Start the app:
-
-bash
-Copy
-Edit
+```bash
 npx expo start
-Project Structure
-screens/ — main screens: Login, Signup, Home, Profile, Calendar, CreateAppointment, Details
+```
 
-components/ — reusable components like Background
+## Project Structure
 
-context/ — authentication context provider
+- `screens/` — main screens: Login, Signup, Home, Profile, Calendar, CreateAppointment, Details  
+- `components/` — reusable components like `Background`  
+- `context/` — authentication context provider  
+- `firebaseConfig.js` — Firebase configuration file  
+- `assets/` — images and icons used in the app  
 
-firebaseConfig.js — Firebase configuration file
+## Features Implemented
 
-assets/ — images and icons used in the app
+- User registration, login, and logout via Firebase Authentication  
+- User profile editing: full name, birthdate, skill, address, and profile photo upload (stored in Firebase Storage)  
+- Bottom Tab navigation between Home, Calendar, and Profile screens  
+- Basic calendar with date selection using `react-native-calendars`  
+- Upload and display of user profile photo  
+- Appointment creation and listing (UI and logic improvements pending)  
 
-Features Implemented
-User registration, login, and logout via Firebase Authentication
+## Database Structure
 
-User profile editing: full name, birthdate, skill, address, and profile photo upload (stored in Firebase Storage)
-
-Bottom Tab navigation between Home, Calendar, and Profile screens
-
-Basic calendar with date selection using react-native-calendars
-
-Upload and display of user profile photo
-
-Appointment creation and listing (UI and logic improvements pending)
-
-Database Structure
 Firestore is used to store user and appointment data. Example structure:
 
-typescript
-Copy
-Edit
+```
 users (collection)
  └─ userId (document)
       ├─ fullName: string
@@ -83,3 +77,4 @@ appointments (collection)
       ├─ date: string
       ├─ description: string
       └─ ...
+```
