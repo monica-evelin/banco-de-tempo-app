@@ -89,7 +89,7 @@ export default function Signup({ navigation }) {
       });
 
       Alert.alert("Success", "Account created successfully!");
-      navigation.replace("Login");
+      navigation.replace("MainTabs");
     } catch (error) {
       Alert.alert("Signup Error", error.message);
     }

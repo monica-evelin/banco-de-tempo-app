@@ -7,6 +7,7 @@ import createAppointment from "./screens/CreateAppointment";
 import Login from "./screens/Login";
 import Signup from "./screens/Signup";
 import DetailsScreen from "./screens/DetailsScreen";
+import MainTabs from "./MainTabs";
 
 const Stack = createNativeStackNavigator();
 
@@ -16,7 +17,7 @@ export default function AppNavigator() {
       <Stack.Navigator initialRouteName="Login">
         <Stack.Screen name="Signup" component={Signup} />
         <Stack.Screen name="Login" component={Login} />
-        <Stack.Screen name="Home" component={Home} />
+        <Stack.Screen name="MainTabs" component={MainTabs} />
         <Stack.Screen name="createAppointment" component={createAppointment} />
         <Stack.Screen name="Details" component={DetailsScreen} />
       </Stack.Navigator>
