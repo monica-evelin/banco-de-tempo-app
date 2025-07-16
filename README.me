@@ -14,67 +14,73 @@ A mobile app for managing appointments and time exchanges between users. It supp
 
 ## How to Run the Project
 
-1. Clone the repository:
+1. **Clone the repository:**
 
 ```bash
 git clone https://github.com/seu-usuario/seu-repositorio.git
-```
 
-2. Install dependencies:
+Install dependencies:
 
-```bash
+bash
+Copy
+Edit
 npm install
-```
+Configure Firebase:
 
-3. Configure Firebase:
+Create a Firebase project
 
-- Create a Firebase project  
-- Enable Email/Password Authentication  
-- Set up Firestore and Storage  
-- Update `firebaseConfig.js` with your Firebase credentials  
+Enable Email/Password Authentication
 
-4. Start the app:
+Set up Firestore and Storage
 
-```bash
+Update firebaseConfig.js with your Firebase credentials
+
+Start the app:
+
+bash
+Copy
+Edit
 npx expo start
-```
+Project Structure
+bash
+Copy
+Edit
+screens/         # Login, Signup, Home, Profile, Calendar, CreateAppointment, Details  
+components/      # Reusable components like Background  
+context/         # Authentication context provider  
+firebaseConfig.js # Firebase configuration  
+assets/          # Images and icons used in the app  
+Features Implemented
+✅ User registration, login, and logout via Firebase Authentication
 
-## Project Structure
+✅ User profile editing: full name, birthdate, skill, address, and profile photo upload
 
-- `screens/` — main screens: Login, Signup, Home, Profile, Calendar, CreateAppointment, Details  
-- `components/` — reusable components like `Background`  
-- `context/` — authentication context provider  
-- `firebaseConfig.js` — Firebase configuration file  
-- `assets/` — images and icons used in the app  
+✅ Bottom Tab navigation between Home, Calendar, and Profile screens
 
-## Features Implemented
+✅ Calendar with date selection using react-native-calendars
 
-- User registration, login, and logout via Firebase Authentication  
-- User profile editing: full name, birthdate, skill, address, and profile photo upload (stored in Firebase Storage)  
-- Bottom Tab navigation between Home, Calendar, and Profile screens  
-- Basic calendar with date selection using `react-native-calendars`  
-- Upload and display of user profile photo  
-- Appointment creation and listing (UI and logic improvements pending)  
+✅ Profile photo upload and display using Firebase Storage
 
-## Database Structure
+🛠️ Appointment creation and listing (UI and logic improvements pending)
 
-Firestore is used to store user and appointment data. Example structure:
+Database Structure
+Using Firestore to store users and appointments:
 
-```
+typescript
+Copy
+Edit
 users (collection)
- └─ userId (document)
-      ├─ fullName: string
-      ├─ email: string
-      ├─ birthDate: string (DD/MM/YYYY)
-      ├─ skill: string
-      ├─ address: string
-      ├─ photoURL: string (Firebase Storage image URL)
-      └─ ...
+ └── userId (document)
+     ├── fullName: string
+     ├── email: string
+     ├── birthDate: string (DD/MM/YYYY)
+     ├── skill: string
+     ├── address: string
+     ├── photoURL: string (Firebase Storage URL)
 
 appointments (collection)
- └─ appointmentId (document)
-      ├─ userId: string
-      ├─ date: string
-      ├─ description: string
-      └─ ...
-```
+ └── appointmentId (document)
+     ├── userId: string
+     ├── date: string
+     ├── description: string
+
