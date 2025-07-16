@@ -34,7 +34,6 @@ const kindMessages = [
   "Smile, you are creating wonderful memories.",
 ];
 
-// get image by type
 function getImageByType(type) {
   if (!type) return require("../assets/images/default.png");
   switch (type.toLowerCase()) {
@@ -57,6 +56,71 @@ function getImageByType(type) {
     default:
       return require("../assets/images/default.png");
   }
+}
+// translate the type field to English
+function translateType(type) {
+  if (!type) return "";
+  switch (type.toLowerCase()) {
+    case "cuidador de idoso":
+    case "elderly care":
+      return "Elderly Care";
+    case "cozinheiro":
+    case "cooking":
+      return "Cooking";
+    case "babá":
+    case "babysitting":
+      return "Babysitting";
+    case "pet sitter":
+    case "pet sitting":
+      return "Pet Sitting";
+    case "faxineira":
+    case "housecleaning":
+      return "House Cleaning";
+    case "jardinagem":
+    case "gardening":
+      return "Gardening";
+    case "ajuda com computador":
+    case "computer help":
+      return "Computer Help";
+    case "tutor":
+    case "tutoring":
+      return "Tutoring";
+    default:
+      return type;
+  }
+}
+
+// translate the description field to English (add cases as needed)
+function translateDescription(desc) {
+  if (!desc) return "";
+  const lowerDesc = desc.toLowerCase();
+
+  if (lowerDesc.includes("apoio e companhia para idosos")) {
+    return "Support and companionship for elderly, ensuring daily safety and well-being";
+  }
+  if (lowerDesc.includes("cozinha")) {
+    return "Cooking services";
+  }
+  if (lowerDesc.includes("babá")) {
+    return "Babysitting services";
+  }
+  if (lowerDesc.includes("pet sitter")) {
+    return "Pet sitting services";
+  }
+  if (lowerDesc.includes("faxineira")) {
+    return "House cleaning services";
+  }
+  if (lowerDesc.includes("jardinagem")) {
+    return "Gardening services";
+  }
+  if (lowerDesc.includes("ajuda com computador")) {
+    return "Computer help and support";
+  }
+  if (lowerDesc.includes("tutor")) {
+    return "Tutoring services";
+  }
+  // Se não achar correspondência, retorna original
+  return desc;
 }
 
 const openCalendarApp = () => {
@@ -232,7 +296,7 @@ export default function HomeScreen() {
             },
           ]}
         >
-          {c.title}
+          {translateType(c.tipo)}
         </Text>
         <Text style={[styles.date, { fontSize: 16, color: "#020381" }]}>
           {`${date} ${time}`}
@@ -244,7 +308,7 @@ export default function HomeScreen() {
           ]}
           numberOfLines={2}
         >
-          {c.descricao || "No description"}
+          {translateDescription(c.descricao) || "No description"}
         </Text>
 
         {(c.email || c.telemovel) && (
