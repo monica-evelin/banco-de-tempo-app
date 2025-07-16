@@ -1,0 +1,85 @@
+# Banco de Tempo
+
+## Description  
+A mobile app for managing appointments and time exchanges between users. It supports user registration, login, viewing and creating appointments, profile editing with photo upload, calendar integration, and smooth navigation.
+
+## Technologies  
+- React Native with Expo  
+- Firebase Authentication, Firestore, and Storage  
+- React Navigation (Bottom Tabs, Stack Navigator)  
+- Expo Image Picker  
+- react-native-calendars  
+
+## How to Run the Project
+
+1. Clone the repository:  
+```bash
+git clone https://github.com/seu-usuario/seu-repositorio.git
+Install dependencies:
+
+bash
+Copy
+Edit
+npm install
+Configure Firebase:
+
+Create a Firebase project
+
+Enable Email/Password Authentication
+
+Set up Firestore and Storage
+
+Update firebaseConfig.js with your Firebase credentials
+
+Start the app:
+
+bash
+Copy
+Edit
+npx expo start
+Project Structure
+screens/ — main screens: Login, Signup, Home, Profile, Calendar, CreateAppointment, Details
+
+components/ — reusable components like Background
+
+context/ — authentication context provider
+
+firebaseConfig.js — Firebase configuration file
+
+assets/ — images and icons used in the app
+
+Features Implemented
+User registration, login, and logout via Firebase Authentication
+
+User profile editing: full name, birthdate, skill, address, and profile photo upload (stored in Firebase Storage)
+
+Bottom Tab navigation between Home, Calendar, and Profile screens
+
+Basic calendar with date selection using react-native-calendars
+
+Upload and display of user profile photo
+
+Appointment creation and listing (UI and logic improvements pending)
+
+Database Structure
+Firestore is used to store user and appointment data. Example structure:
+
+typescript
+Copy
+Edit
+users (collection)
+ └─ userId (document)
+      ├─ fullName: string
+      ├─ email: string
+      ├─ birthDate: string (DD/MM/YYYY)
+      ├─ skill: string
+      ├─ address: string
+      ├─ photoURL: string (Firebase Storage image URL)
+      └─ ...
+
+appointments (collection)
+ └─ appointmentId (document)
+      ├─ userId: string
+      ├─ date: string
+      ├─ description: string
+      └─ ...
