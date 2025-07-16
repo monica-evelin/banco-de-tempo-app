@@ -7,14 +7,13 @@ import {
   ScrollView,
   ImageBackground,
   Alert,
+  Linking,
   Platform,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { auth, db } from "../firebaseConfig";
 import styles from "../style/style";
 import * as Calendar from "expo-calendar";
-
-// firestore imports
 import {
   collection,
   query,
@@ -23,22 +22,22 @@ import {
   onSnapshot,
 } from "firebase/firestore";
 
-// imagem de fundo
+// background image
 const BACKGROUND_IMAGE = require("../assets/images/fundo.png");
 
-// Mensagens carinhosas aleatórias sobre o tempo
-const mensagensCarinhosas = [
-  "Que seu dia seja tão radiante quanto o sol!",
-  "Aproveite cada momento com amor e alegria.",
-  "Um abraço quentinho para você neste dia lindo!",
-  "Que o vento leve embora suas preocupações hoje.",
-  "Sorria, você está criando memórias maravilhosas.",
+// random kind messages about time
+const kindMessages = [
+  "May your day be as bright as the sun!",
+  "Enjoy every moment with love and joy.",
+  "A warm hug for you on this beautiful day!",
+  "May the wind take your worries away today.",
+  "Smile, you are creating wonderful memories.",
 ];
 
-function getImageByTipo(tipo) {
-  if (!tipo) return require("../assets/images/default.png");
-
-  switch (tipo.toLowerCase()) {
+// get image by type
+function getImageByType(type) {
+  if (!type) return require("../assets/images/default.png");
+  switch (type.toLowerCase()) {
     case "tutoring":
       return require("../assets/images/tutoring.png");
     case "cooking":
@@ -60,11 +59,18 @@ function getImageByTipo(tipo) {
   }
 }
 
-// Solicita permissão para acessar o calendário
+const openCalendarApp = () => {
+  if (Platform.OS === "ios") {
+    Linking.openURL("calshow://");
+  } else if (Platform.OS === "android") {
+    Linking.openURL("content://com.android.calendar/time/");
+  }
+};
+
 async function getCalendarPermissions() {
   const { status } = await Calendar.requestCalendarPermissionsAsync();
   if (status !== "granted") {
-    Alert.alert("Permissão para acessar calendário negada!");
+    Alert.alert("Permission to access calendar denied!");
     return false;
   }
   return true;
@@ -72,75 +78,73 @@ async function getCalendarPermissions() {
 
 export default function HomeScreen() {
   const navigation = useNavigation();
-  const [compromissos, setCompromissos] = useState([]);
-  const uid = auth.currentUser?.uid;
-
-  // Mensagem carinhosa aleatória para exibir
-  const [mensagemCarinhosa, setMensagemCarinhosa] = useState("");
+  const [appointments, setAppointments] = useState([]);
+  const [kindMessage, setKindMessage] = useState("");
 
   useEffect(() => {
-    // Sorteia a mensagem carinhosa na montagem do componente
-    const index = Math.floor(Math.random() * mensagensCarinhosas.length);
-    setMensagemCarinhosa(mensagensCarinhosas[index]);
+    const index = Math.floor(Math.random() * kindMessages.length);
+    setKindMessage(kindMessages[index]);
   }, []);
 
   useEffect(() => {
-    if (!uid) return;
+    if (!auth.currentUser) return;
 
     const q = query(
       collection(db, "compromissos"),
-      // where("uid", "==", uid), // Se quiser filtrar pelo usuário, ativa aqui
       orderBy("datetime", "asc"),
       limit(10)
     );
 
     const unsubscribe = onSnapshot(q, (snap) => {
-      const dados = snap.docs.map((doc) => {
-        const c = doc.data();
-        const dateObj = c.datetime?.toDate
-          ? c.datetime.toDate()
-          : new Date(c.datetime);
+      const data = snap.docs
+        .map((doc) => {
+          const c = doc.data();
+          if (!c.datetime) return null;
 
-        return {
-          id: doc.id,
-          title: c.title,
-          descricao: c.descricao,
-          tipo: c.tipo,
-          email: c.email,
-          telemovel: c.telemovel,
-          dateObj,
-        };
-      });
+          const dateObj = c.datetime.toDate
+            ? c.datetime.toDate()
+            : new Date(c.datetime);
 
-      setCompromissos(dados);
+          return {
+            id: doc.id,
+            title: c.title,
+            descricao: c.descricao,
+            tipo: c.tipo,
+            email: c.email,
+            telemovel: c.telemovel,
+            dateObj,
+          };
+        })
+        .filter(Boolean);
+
+      setAppointments(data);
     });
 
     return unsubscribe;
-  }, [uid]);
+  }, []);
 
   const addToCalendar = async (c) => {
     const hasPermission = await getCalendarPermissions();
     if (!hasPermission) return;
 
-    let defaultCalendarId;
+    let calendarId;
 
     if (Platform.OS === "ios") {
       const calendars = await Calendar.getCalendarsAsync(
         Calendar.EntityTypes.EVENT
       );
-      defaultCalendarId = calendars.find((cal) => cal.allowsModifications)?.id;
+      calendarId = calendars.find((cal) => cal.allowsModifications)?.id;
     } else {
-      defaultCalendarId = await Calendar.getDefaultCalendarAsync().then(
-        (cal) => cal?.id
-      );
-      if (!defaultCalendarId) {
-        defaultCalendarId = await Calendar.createCalendarAsync({
-          title: "Banco de Tempo",
+      const defaultCal = await Calendar.getDefaultCalendarAsync();
+      calendarId = defaultCal?.id;
+
+      if (!calendarId) {
+        calendarId = await Calendar.createCalendarAsync({
+          title: "Time Bank",
           color: "blue",
           entityType: Calendar.EntityTypes.EVENT,
-          sourceId: undefined,
-          source: { isLocalAccount: true, name: "Banco de Tempo" },
-          name: "Banco de Tempo",
+          source: { isLocalAccount: true, name: "Time Bank" },
+          name: "Time Bank",
           ownerAccount: "personal",
           accessLevel: Calendar.CalendarAccessLevel.OWNER,
         });
@@ -148,22 +152,51 @@ export default function HomeScreen() {
     }
 
     try {
-      await Calendar.createEventAsync(defaultCalendarId, {
+      await Calendar.createEventAsync(calendarId, {
         title: c.title,
         startDate: c.dateObj.toISOString(),
-        endDate: new Date(c.dateObj.getTime() + 60 * 60 * 1000).toISOString(), // +1 hora
+        endDate: new Date(c.dateObj.getTime() + 60 * 60 * 1000).toISOString(),
         notes: c.descricao,
         timeZone: "GMT",
       });
-      Alert.alert("Evento criado no calendário!");
+      Alert.alert("Event added to calendar!");
+      openCalendarApp();
     } catch (error) {
-      Alert.alert("Erro ao criar evento no calendário: " + error.message);
+      Alert.alert("Error creating event: " + error.message);
     }
   };
 
-  const renderCompromisso = (c) => {
-    const data = c.dateObj.toLocaleDateString();
-    const hora = c.dateObj.toLocaleTimeString([], {
+  const contactOptions = (c) => {
+    const options = [];
+
+    if (c.email) {
+      options.push({
+        text: "Send Email",
+        onPress: () => Linking.openURL(`mailto:${c.email}`),
+      });
+    }
+
+    if (c.telemovel) {
+      options.push({
+        text: "Call",
+        onPress: () => Linking.openURL(`tel:${c.telemovel}`),
+      });
+    }
+
+    options.push({ text: "Cancel", style: "cancel" });
+
+    Alert.alert("Contact Options", "Choose an option:", options, {
+      cancelable: true,
+    });
+  };
+
+  const openDetails = (appointment) => {
+    navigation.navigate("Details", { compromisso: appointment });
+  };
+
+  const renderAppointment = (c) => {
+    const date = c.dateObj.toLocaleDateString();
+    const time = c.dateObj.toLocaleTimeString([], {
       hour: "2-digit",
       minute: "2-digit",
     });
@@ -181,86 +214,77 @@ export default function HomeScreen() {
           },
         ]}
       >
-        <Image
-          source={getImageByTipo(c.tipo)}
-          style={[styles.image, { height: 200, borderRadius: 10 }]}
-        />
+        <TouchableOpacity onPress={() => openDetails(c)}>
+          <Image
+            source={getImageByType(c.tipo)}
+            style={[styles.image, { height: 200, borderRadius: 10 }]}
+          />
+        </TouchableOpacity>
+
         <Text
           style={[
             styles.cardTitle,
-            { fontSize: 22, textAlign: "center", marginVertical: 10 },
+            {
+              fontSize: 22,
+              textAlign: "center",
+              marginVertical: 10,
+              color: "#020381",
+            },
           ]}
         >
           {c.title}
         </Text>
-        <Text style={[styles.date, { fontSize: 16 }]}>{`${data} ${hora}`}</Text>
+        <Text style={[styles.date, { fontSize: 16, color: "#020381" }]}>
+          {`${date} ${time}`}
+        </Text>
         <Text
           style={[
             styles.eventDescription,
-            { marginVertical: 10, textAlign: "center" },
+            { marginVertical: 10, textAlign: "center", color: "#020381" },
           ]}
           numberOfLines={2}
         >
-          {c.descricao || "Sem descrição"}
+          {c.descricao || "No description"}
         </Text>
 
-        {/* Botão Entrar em contato */}
         {(c.email || c.telemovel) && (
           <TouchableOpacity
             style={styles.login_button}
-            onPress={() => {
-              let contato = "";
-              if (c.email) contato += `Email: ${c.email}\n`;
-              if (c.telemovel) contato += `Telemóvel: ${c.telemovel}\n`;
-
-              Alert.alert(
-                "Contato",
-                contato,
-                [
-                  {
-                    text: "Fechar",
-                    style: "cancel",
-                  },
-                ],
-                { cancelable: true }
-              );
-            }}
+            onPress={() => contactOptions(c)}
           >
-            <Text style={styles.login_buttonText}>Entrar em contato</Text>
+            <Text style={styles.login_buttonText}>Contact</Text>
           </TouchableOpacity>
         )}
 
-        {/* Botão Adicionar ao calendário */}
         <TouchableOpacity
           style={[styles.login_button, { marginTop: 10 }]}
           onPress={() => addToCalendar(c)}
         >
-          <Text style={styles.login_buttonText}>Adicionar ao calendário</Text>
+          <Text style={styles.login_buttonText}>Add to Calendar</Text>
         </TouchableOpacity>
       </View>
     );
   };
 
-  const sair = async () => {
+  const logout = async () => {
     try {
       await auth.signOut();
       navigation.replace("Login");
     } catch (e) {
-      Alert.alert("Erro ao sair", e.message);
+      Alert.alert("Logout error", e.message);
     }
   };
 
   return (
     <ImageBackground
       source={BACKGROUND_IMAGE}
-      style={styles.background}
+      style={[styles.background, { backgroundColor: "rgba(2, 3, 129, 1)" }]}
       resizeMode="cover"
     >
       <View style={styles.overlay}>
         <ScrollView
           contentContainerStyle={{ alignItems: "center", paddingBottom: 40 }}
         >
-          {/* Mensagem carinhosa */}
           <Text
             style={{
               fontSize: 18,
@@ -271,25 +295,25 @@ export default function HomeScreen() {
               paddingHorizontal: 20,
             }}
           >
-            {mensagemCarinhosa}
+            {kindMessage}
           </Text>
 
-          {compromissos.length === 0 && (
+          {appointments.length === 0 && (
             <Text style={{ color: "#ccc", textAlign: "center", marginTop: 50 }}>
-              Nenhum compromisso agendado.
+              No scheduled appointments.
             </Text>
           )}
 
-          {compromissos.map(renderCompromisso)}
+          {appointments.map(renderAppointment)}
 
           <TouchableOpacity
             style={[
               styles.logout_button,
               { backgroundColor: "#2196F3", marginTop: 20, width: "95%" },
             ]}
-            onPress={sair}
+            onPress={logout}
           >
-            <Text style={styles.login_buttonText}>Sair</Text>
+            <Text style={styles.login_buttonText}>Logout</Text>
           </TouchableOpacity>
         </ScrollView>
       </View>
