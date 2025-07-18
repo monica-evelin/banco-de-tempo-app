@@ -10,6 +10,7 @@ const styles = StyleSheet.create({
   login_container: {
     flex: 1,
     backgroundColor: "rgba(2, 3, 129, 1)",
+    paddingTop: 20,
   },
 
   login_input: {

@@ -2,6 +2,7 @@ import React from "react";
 import { View, Text, StyleSheet, Image, ScrollView } from "react-native";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 
+
 const FOOTER_IMAGE = require("../assets/Conversation.png");
 
 export default function DetailsScreen({ route }) {
