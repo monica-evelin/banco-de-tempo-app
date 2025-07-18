@@ -323,7 +323,7 @@ export default function HomeScreen() {
         )}
 
         <TouchableOpacity
-          style={[styles.login_button, { marginTop: 10 }]}
+          style={[styles.login_buttonCal, { marginTop: 10 }]}
           onPress={() => addToCalendar(c)}
         >
           <Text style={styles.login_buttonText}>Add to Calendar</Text>
