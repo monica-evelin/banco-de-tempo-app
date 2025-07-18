@@ -41,6 +41,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
 
+
   login_link: {
     color: "#4CAF50",
     marginTop: 10,

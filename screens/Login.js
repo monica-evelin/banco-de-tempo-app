@@ -17,6 +17,7 @@ import {
 } from "firebase/auth";
 import { auth } from "../firebaseConfig";
 import styles from "../style/style";
+import { SafeAreaView, StatusBar } from "react-native";//coloquei para verificar
 
 export default function Login({ navigation }) {
   const [email, setEmail] = useState("");
@@ -57,6 +58,12 @@ export default function Login({ navigation }) {
 
   // ------- UI -------------------------------------------------------------
   return (
+    <SafeAreaView
+          style={{
+          flex: 1,
+          paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
+          }}
+        >
     <KeyboardAvoidingView
       style={{ flex: 1 }}
       behavior={Platform.OS === "ios" ? "padding" : undefined}
@@ -119,5 +126,6 @@ export default function Login({ navigation }) {
         </View>
       </ScrollView>
     </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 }
