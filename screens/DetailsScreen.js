@@ -22,7 +22,7 @@ export default function DetailsScreen({ route }) {
         <View style={styles.row}>
           <Icon name="tag-outline" size={24} color="#4CAF50" />
           <Text style={styles.text}>
-            Tipo: {compromisso.tipo || "Não informado"}
+            Type: {compromisso.tipo || "Não informado"}
           </Text>
         </View>
 
@@ -36,14 +36,14 @@ export default function DetailsScreen({ route }) {
         <View style={styles.row}>
           <Icon name="phone-outline" size={24} color="#4CAF50" />
           <Text style={styles.text}>
-            Telefone: {compromisso.telemovel || "Não informado"}
+            Phone: {compromisso.telemovel || "Não informado"}
           </Text>
         </View>
 
         <View style={styles.row}>
           <Icon name="calendar-clock" size={24} color="#4CAF50" />
           <Text style={styles.text}>
-            Data e Hora: {compromisso.dateObj.toLocaleDateString()} às{" "}
+            Date and Time: {compromisso.dateObj.toLocaleDateString()} às{" "}
             {compromisso.dateObj.toLocaleTimeString([], {
               hour: "2-digit",
               minute: "2-digit",

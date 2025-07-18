@@ -74,7 +74,7 @@ function translateType(type) {
     case "pet sitting":
       return "Pet Sitting";
     case "faxineira":
-    case "housecleaning":
+    case "house cleaning":
       return "House Cleaning";
     case "jardinagem":
     case "gardening":
@@ -86,7 +86,11 @@ function translateType(type) {
     case "tutoring":
       return "Tutoring";
     default:
-      return type;
+      // Se já estiver em inglês, só capitaliza as palavras (opcional)
+      return type
+        .split(" ")
+        .map((w) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
+        .join(" ");
   }
 }
 
