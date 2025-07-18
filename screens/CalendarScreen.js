@@ -2,10 +2,12 @@ import React, { useState } from "react";
 import { View, StyleSheet, Image } from "react-native";
 import { Calendar } from "react-native-calendars";
 
+
 export default function CalendarScreen() {
   const [selectedDate, setSelectedDate] = useState(null);
 
   return (
+    
     <View style={styles.container}>
       <View style={styles.calendarWrapper}>
         <Calendar

@@ -34,6 +34,15 @@ const styles = StyleSheet.create({
     marginBottom: 5,
   },
 
+  login_buttonCal: {
+    backgroundColor: "#a4a4a4",
+    padding: 12,
+    borderRadius: 8,
+    alignItems: "center",
+    marginTop: 20,
+    marginBottom: 5,
+  },
+
   login_buttonText: {
     color: "#fff",
     fontWeight: "bold",
