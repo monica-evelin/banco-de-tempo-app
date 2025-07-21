@@ -23,7 +23,6 @@ import {
 } from "firebase/firestore";
 import { SafeAreaView, StatusBar } from "react-native";
 
-
 // background image
 const BACKGROUND_IMAGE = require("../assets/images/fundo.png");
 
@@ -261,7 +260,13 @@ export default function HomeScreen() {
   };
 
   const openDetails = (appointment) => {
-    navigation.navigate("Details", { compromisso: appointment });
+    // Criar um objeto sem o dateObj (que é não-serializável), só com uma string
+    const compromisso = {
+      ...appointment,
+      dateStr: appointment.dateObj.toISOString(), // converte Date para string
+    };
+
+    navigation.navigate("Details", { compromisso });
   };
 
   const renderAppointment = (c) => {
@@ -359,37 +364,39 @@ export default function HomeScreen() {
       >
         <View style={styles.overlay}>
           <ScrollView
-            contentContainerStyle={{ alignItems: "center", paddingBottom: 40}}
+            contentContainerStyle={{ alignItems: "center", paddingBottom: 40 }}
           >
             <Text
-             style={{
-               fontSize: 18,
-               color: "#fff",
-               marginTop: 30,
-               fontStyle: "italic",
-               textAlign: "center",
-               paddingHorizontal: 20,
-             }}
-           >
-             {kindMessage}
-           </Text>
-
-           {appointments.length === 0 && (
-             <Text style={{ color: "#ccc", textAlign: "center", marginTop: 50 }}>
-               No scheduled appointments.
-             </Text>
-           )}
-
-           {appointments.map(renderAppointment)}
-
-           <TouchableOpacity
-             style={[
-               styles.logout_button,
-               { backgroundColor: "#2196F3", marginTop: 20, width: "95%" },
-             ]}
-             onPress={logout}
+              style={{
+                fontSize: 18,
+                color: "#fff",
+                marginTop: 30,
+                fontStyle: "italic",
+                textAlign: "center",
+                paddingHorizontal: 20,
+              }}
             >
-             <Text style={styles.login_buttonText}>Logout</Text>
+              {kindMessage}
+            </Text>
+
+            {appointments.length === 0 && (
+              <Text
+                style={{ color: "#ccc", textAlign: "center", marginTop: 50 }}
+              >
+                No scheduled appointments.
+              </Text>
+            )}
+
+            {appointments.map(renderAppointment)}
+
+            <TouchableOpacity
+              style={[
+                styles.logout_button,
+                { backgroundColor: "#2196F3", marginTop: 20, width: "95%" },
+              ]}
+              onPress={logout}
+            >
+              <Text style={styles.login_buttonText}>Logout</Text>
             </TouchableOpacity>
           </ScrollView>
         </View>
