@@ -7,6 +7,9 @@ const FOOTER_IMAGE = require("../assets/Conversation.png");
 export default function DetailsScreen({ route }) {
   const { compromisso } = route.params;
 
+  // Reconverte a string em Date
+  const dateObj = new Date(compromisso.dateStr);
+
   return (
     <View style={styles.container}>
       <ScrollView contentContainerStyle={styles.content}>
@@ -15,36 +18,36 @@ export default function DetailsScreen({ route }) {
         <View style={styles.row}>
           <Icon name="text-box-outline" size={24} color="#4CAF50" />
           <Text style={styles.text}>
-            {compromisso.descricao || "Sem descrição"}
+            {compromisso.descricao || "No description"}
           </Text>
         </View>
 
         <View style={styles.row}>
           <Icon name="tag-outline" size={24} color="#4CAF50" />
           <Text style={styles.text}>
-            Type: {compromisso.tipo || "Não informado"}
+            Type: {compromisso.tipo || "Not informed"}
           </Text>
         </View>
 
         <View style={styles.row}>
           <Icon name="email-outline" size={24} color="#4CAF50" />
           <Text style={styles.text}>
-            Email: {compromisso.email || "Não informado"}
+            Email: {compromisso.email || "Not informed"}
           </Text>
         </View>
 
         <View style={styles.row}>
           <Icon name="phone-outline" size={24} color="#4CAF50" />
           <Text style={styles.text}>
-            Phone: {compromisso.telemovel || "Não informado"}
+            Phone: {compromisso.telemovel || "Not informed"}
           </Text>
         </View>
 
         <View style={styles.row}>
           <Icon name="calendar-clock" size={24} color="#4CAF50" />
           <Text style={styles.text}>
-            Date and Time: {compromisso.dateObj.toLocaleDateString()} às{" "}
-            {compromisso.dateObj.toLocaleTimeString([], {
+            Date and Time: {dateObj.toLocaleDateString()} at{" "}
+            {dateObj.toLocaleTimeString([], {
               hour: "2-digit",
               minute: "2-digit",
             })}
@@ -70,14 +73,14 @@ const styles = StyleSheet.create({
   },
   content: {
     padding: 20,
-    paddingBottom: 120, // espaço para footer
+    paddingBottom: 120,
   },
   title: {
     fontSize: 28,
     fontWeight: "700",
     color: "#fff",
     marginBottom: 20,
-    fontFamily: "Cochin", // uma fonte bonita, mude conforme disponível
+    fontFamily: "Cochin",
   },
   row: {
     flexDirection: "row",
@@ -88,7 +91,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: "#fff",
     marginLeft: 12,
-    fontFamily: "Georgia", // fonte elegante para texto
+    fontFamily: "Georgia",
   },
   footer: {
     position: "absolute",
@@ -100,6 +103,5 @@ const styles = StyleSheet.create({
   footerImage: {
     width: 550,
     height: 450,
-    //opacity: 0.7,
   },
 });
