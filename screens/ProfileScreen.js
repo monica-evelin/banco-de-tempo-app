@@ -84,45 +84,70 @@ export default function ProfileScreen() {
     }
   };
 
-  const pickImage = async () => {
-    const permissionResult =
-      await ImagePicker.requestMediaLibraryPermissionsAsync();
+  const uploadImage = async (uri) => {
+    const response = await fetch(uri);
+    const blob = await response.blob();
+    const storageRef = ref(storage, `profileImages/${user.uid}.jpg`);
+    await uploadBytes(storageRef, blob);
+    const downloadURL = await getDownloadURL(storageRef);
+    setPhotoURL(downloadURL);
 
+    await setDoc(
+      doc(db, "users", user.uid),
+      { photoURL: downloadURL },
+      { merge: true }
+    );
+  };
+
+  const pickImage = async () => {
+    const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (permissionResult.status !== "granted") {
-      Alert.alert(
-        "Permission required",
-        "You need to allow access to the gallery."
-      );
+      Alert.alert("Permission required", "You need to allow access to the gallery.");
       return;
     }
 
     const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: [ImagePicker.MediaType.IMAGE],
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
       quality: 1,
     });
 
     if (!result.canceled) {
       const imageUri = result.assets[0].uri;
-
+      setLoading(true);
       try {
-        const response = await fetch(imageUri);
-        const blob = await response.blob();
-        const storageRef = ref(storage, `profileImages/${user.uid}.jpg`);
-        await uploadBytes(storageRef, blob);
-
-        const downloadURL = await getDownloadURL(storageRef);
-        setPhotoURL(downloadURL);
-
-        await setDoc(
-          doc(db, "users", user.uid),
-          { photoURL: downloadURL },
-          { merge: true }
-        );
-
+        await uploadImage(imageUri);
         Alert.alert("Success", "Photo updated!");
       } catch (err) {
         Alert.alert("Upload failed", err.message);
+      } finally {
+        setLoading(false);
+      }
+    }
+  };
+
+  const takePhoto = async () => {
+    const permissionResult = await ImagePicker.requestCameraPermissionsAsync();
+    if (permissionResult.status !== "granted") {
+      Alert.alert("Permission required", "You need to allow camera access.");
+      return;
+    }
+
+    const result = await ImagePicker.launchCameraAsync({
+      allowsEditing: true,
+      quality: 1,
+    });
+
+    if (!result.canceled) {
+      const imageUri = result.assets[0].uri;
+      setLoading(true);
+      try {
+        await uploadImage(imageUri);
+        Alert.alert("Success", "Photo updated!");
+      } catch (err) {
+        Alert.alert("Upload failed", err.message);
+      } finally {
+        setLoading(false);
       }
     }
   };
@@ -150,18 +175,32 @@ export default function ProfileScreen() {
               <Text>No photo</Text>
             </View>
           )}
-          <TouchableOpacity
-            onPress={pickImage}
-            style={{
-              marginTop: 10,
-              backgroundColor: "#2196F3",
-              paddingVertical: 8,
-              paddingHorizontal: 16,
-              borderRadius: 6,
-            }}
-          >
-            <Text style={{ color: "#fff" }}>Choose Photo</Text>
-          </TouchableOpacity>
+
+          <View style={{ flexDirection: "row", marginTop: 10, gap: 10 }}>
+            <TouchableOpacity
+              onPress={takePhoto}
+              style={{
+                backgroundColor: "#4CAF50",
+                paddingVertical: 8,
+                paddingHorizontal: 12,
+                borderRadius: 6,
+              }}
+            >
+              <Text style={{ color: "#fff" }}>Tirar Foto</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              onPress={pickImage}
+              style={{
+                backgroundColor: "#2196F3",
+                paddingVertical: 8,
+                paddingHorizontal: 12,
+                borderRadius: 6,
+              }}
+            >
+              <Text style={{ color: "#fff" }}>Escolher da Galeria</Text>
+            </TouchableOpacity>
+          </View>
         </View>
 
         <Text style={styles.login_label}>Name:</Text>
