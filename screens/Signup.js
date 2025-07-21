@@ -62,6 +62,13 @@ export default function Signup({ navigation }) {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     const birthDateRegex = /^(0[1-9]|[12][0-9]|3[01])[\/](0[1-9]|1[0-2])[\/]\d{4}$/;
 
+    const isValidPassword = (pwd) => {
+    const minLength = pwd.length >= 6;
+    const hasUpperCase = /[A-Z]/.test(pwd);
+    const hasSpecialChar = /[^A-Za-z0-9]/.test(pwd);
+    return minLength && hasUpperCase && hasSpecialChar;
+  };
+
     if (!fullName || fullName.length < 3) {
       Alert.alert("Invalid Name", "Please enter your full name (min. 3 characters).");
       return;
@@ -92,8 +99,11 @@ export default function Signup({ navigation }) {
       return;
     }
 
-    if (password.length < 6) {
-      Alert.alert("Weak Password", "Password must be at least 6 characters.");
+    if (!isValidPassword(password)) {
+      Alert.alert(
+        "Error",
+        "Invalid password. It must be at least 6 characters long, contain an uppercase letter, and a special character."
+      );
       return;
     }
 
