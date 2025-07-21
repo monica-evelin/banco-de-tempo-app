@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -11,34 +11,44 @@ import {
   SafeAreaView,
 } from "react-native";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
+import { collection, query, onSnapshot } from "firebase/firestore";
+import { db } from "../firebaseConfig";
+
 const BACKGROUND_IMAGE = require("../assets/images/fundo.png");
+
 export default function DetailsScreen({ route }) {
-  const { compromisso } = route.params || {};
-  const dateObj = compromisso?.dateStr
-    ? new Date(compromisso.dateStr)
-    : new Date();
-  const handlePhonePress = () => {
-    if (compromisso?.telemovel) {
-      Linking.openURL(`tel:${compromisso.telemovel}`);
-    }
-  };
-  const handleEmailPress = () => {
-    if (compromisso?.email) {
-      Linking.openURL(`mailto:${compromisso.email}`);
-    }
-  };
-  const contactOptions = () => {
+  const { tipo } = route.params || {};
+  const [contatos, setContatos] = useState([]);
+
+  useEffect(() => {
+    if (!tipo) return;
+
+    // Busca todos os compromissos e filtra localmente pelo tipo ignorando case
+    const q = query(collection(db, "compromissos"));
+
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const dados = snapshot.docs
+        .map((doc) => ({ id: doc.id, ...doc.data() }))
+        .filter((item) => item.tipo?.toLowerCase() === tipo.toLowerCase());
+
+      setContatos(dados);
+    });
+
+    return () => unsubscribe();
+  }, [tipo]);
+
+  const contactOptions = (contato) => {
     const options = [];
-    if (compromisso?.email) {
+    if (contato.email) {
       options.push({
         text: "Send Email",
-        onPress: handleEmailPress,
+        onPress: () => Linking.openURL(`mailto:${contato.email}`),
       });
     }
-    if (compromisso?.telemovel) {
+    if (contato.telemovel) {
       options.push({
         text: "Call",
-        onPress: handlePhonePress,
+        onPress: () => Linking.openURL(`tel:${contato.telemovel}`),
       });
     }
     options.push({ text: "Cancel", style: "cancel" });
@@ -46,57 +56,59 @@ export default function DetailsScreen({ route }) {
       cancelable: true,
     });
   };
+
   return (
-<ImageBackground
+    <ImageBackground
       source={BACKGROUND_IMAGE}
       style={styles.background}
       resizeMode="cover"
->
-<SafeAreaView style={styles.container}>
-<ScrollView contentContainerStyle={styles.content}>
-<Text style={styles.title}>{compromisso?.title || "Detalhes"}</Text>
-<View style={styles.card}>
-<View style={styles.row}>
-<Icon name="account" size={24} color="#4CAF50" />
-<Text style={styles.text}>{compromisso?.title}</Text>
-</View>
-<View style={styles.row}>
-<Icon name="email-outline" size={24} color="#4CAF50" />
-<Text style={styles.text}>
-                {compromisso?.email || "Sem email"}
-</Text>
-</View>
-<View style={styles.row}>
-<Icon name="map-marker" size={24} color="#4CAF50" />
-<Text style={styles.text}>
-                {compromisso?.morada || "Sem morada"}
-</Text>
-</View>
-<View style={styles.row}>
-<Icon name="calendar" size={24} color="#4CAF50" />
-<Text style={styles.text}>
-                {dateObj.toLocaleDateString()} -{" "}
-                {dateObj.toLocaleTimeString([], {
-                  hour: "2-digit",
-                  minute: "2-digit",
-                })}
-</Text>
-</View>
-</View>
-          {(compromisso?.telemovel || compromisso?.email) && (
-<TouchableOpacity
-              style={styles.contactButton}
-              onPress={contactOptions}
->
-<Icon name="contacts" size={20} color="#fff" />
-<Text style={styles.contactButtonText}>Contact</Text>
-</TouchableOpacity>
+    >
+      <SafeAreaView style={styles.container}>
+        <ScrollView contentContainerStyle={styles.content}>
+          <Text style={styles.title}>Contatos para "{tipo}"</Text>
+
+          {contatos.length === 0 ? (
+            <Text style={styles.noContacts}>
+              Nenhum contato encontrado para este tipo.
+            </Text>
+          ) : (
+            contatos.map((contato) => (
+              <View key={contato.id} style={styles.card}>
+                <View style={styles.row}>
+                  <Icon name="account" size={24} color="#4CAF50" />
+                  <Text style={styles.text}>{contato.title || "Sem nome"}</Text>
+                </View>
+                <View style={styles.row}>
+                  <Icon name="email-outline" size={24} color="#4CAF50" />
+                  <Text style={styles.text}>
+                    {contato.email || "Sem email"}
+                  </Text>
+                </View>
+                <View style={styles.row}>
+                  <Icon name="phone" size={24} color="#4CAF50" />
+                  <Text style={styles.text}>
+                    {contato.telemovel || "Sem telefone"}
+                  </Text>
+                </View>
+
+                {(contato.email || contato.telemovel) && (
+                  <TouchableOpacity
+                    style={styles.contactButton}
+                    onPress={() => contactOptions(contato)}
+                  >
+                    <Icon name="contacts" size={20} color="#fff" />
+                    <Text style={styles.contactButtonText}>Contactar</Text>
+                  </TouchableOpacity>
+                )}
+              </View>
+            ))
           )}
-</ScrollView>
-</SafeAreaView>
-</ImageBackground>
+        </ScrollView>
+      </SafeAreaView>
+    </ImageBackground>
   );
 }
+
 const styles = StyleSheet.create({
   background: {
     flex: 1,
@@ -117,6 +129,12 @@ const styles = StyleSheet.create({
     textShadowColor: "#000",
     textShadowOffset: { width: 1, height: 1 },
     textShadowRadius: 5,
+  },
+  noContacts: {
+    fontSize: 18,
+    color: "#ccc",
+    textAlign: "center",
+    marginTop: 50,
   },
   card: {
     backgroundColor: "rgba(255, 255, 255, 0.9)",
@@ -143,7 +161,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     alignSelf: "center",
-    width: "60%",
+    marginTop: 10,
   },
   contactButtonText: {
     color: "#fff",

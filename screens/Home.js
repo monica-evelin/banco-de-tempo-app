@@ -9,6 +9,8 @@ import {
   Alert,
   Linking,
   Platform,
+  SafeAreaView,
+  StatusBar,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { auth, db } from "../firebaseConfig";
@@ -21,7 +23,6 @@ import {
   limit,
   onSnapshot,
 } from "firebase/firestore";
-import { SafeAreaView, StatusBar } from "react-native";
 
 // background image
 const BACKGROUND_IMAGE = require("../assets/images/fundo.png");
@@ -58,7 +59,7 @@ function getImageByType(type) {
       return require("../assets/images/default.png");
   }
 }
-// translate the type field to English
+
 function translateType(type) {
   if (!type) return "";
   switch (type.toLowerCase()) {
@@ -87,7 +88,6 @@ function translateType(type) {
     case "tutoring":
       return "Tutoring";
     default:
-      // Se já estiver em inglês, só capitaliza as palavras (opcional)
       return type
         .split(" ")
         .map((w) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
@@ -95,7 +95,6 @@ function translateType(type) {
   }
 }
 
-// translate the description field to English (add cases as needed)
 function translateDescription(desc) {
   if (!desc) return "";
   const lowerDesc = desc.toLowerCase();
@@ -124,25 +123,7 @@ function translateDescription(desc) {
   if (lowerDesc.includes("tutor")) {
     return "Tutoring services";
   }
-  // Se não achar correspondência, retorna original
   return desc;
-}
-
-const openCalendarApp = () => {
-  if (Platform.OS === "ios") {
-    Linking.openURL("calshow://");
-  } else if (Platform.OS === "android") {
-    Linking.openURL("content://com.android.calendar/time/");
-  }
-};
-
-async function getCalendarPermissions() {
-  const { status } = await Calendar.requestCalendarPermissionsAsync();
-  if (status !== "granted") {
-    Alert.alert("Permission to access calendar denied!");
-    return false;
-  }
-  return true;
 }
 
 export default function HomeScreen() {
@@ -192,49 +173,6 @@ export default function HomeScreen() {
     return unsubscribe;
   }, []);
 
-  const addToCalendar = async (c) => {
-    const hasPermission = await getCalendarPermissions();
-    if (!hasPermission) return;
-
-    let calendarId;
-
-    if (Platform.OS === "ios") {
-      const calendars = await Calendar.getCalendarsAsync(
-        Calendar.EntityTypes.EVENT
-      );
-      calendarId = calendars.find((cal) => cal.allowsModifications)?.id;
-    } else {
-      const defaultCal = await Calendar.getDefaultCalendarAsync();
-      calendarId = defaultCal?.id;
-
-      if (!calendarId) {
-        calendarId = await Calendar.createCalendarAsync({
-          title: "Time Bank",
-          color: "blue",
-          entityType: Calendar.EntityTypes.EVENT,
-          source: { isLocalAccount: true, name: "Time Bank" },
-          name: "Time Bank",
-          ownerAccount: "personal",
-          accessLevel: Calendar.CalendarAccessLevel.OWNER,
-        });
-      }
-    }
-
-    try {
-      await Calendar.createEventAsync(calendarId, {
-        title: c.title,
-        startDate: c.dateObj.toISOString(),
-        endDate: new Date(c.dateObj.getTime() + 60 * 60 * 1000).toISOString(),
-        notes: c.descricao,
-        timeZone: "GMT",
-      });
-      Alert.alert("Event added to calendar!");
-      openCalendarApp();
-    } catch (error) {
-      Alert.alert("Error creating event: " + error.message);
-    }
-  };
-
   const contactOptions = (c) => {
     const options = [];
 
@@ -260,10 +198,9 @@ export default function HomeScreen() {
   };
 
   const openDetails = (appointment) => {
-    // Criar um objeto sem o dateObj (que é não-serializável), só com uma string
     const compromisso = {
       ...appointment,
-      dateStr: appointment.dateObj.toISOString(), // converte Date para string
+      dateStr: appointment.dateObj.toISOString(), // envia a data como string ISO
     };
 
     navigation.navigate("Details", { compromisso });
@@ -330,25 +267,8 @@ export default function HomeScreen() {
             <Text style={styles.login_buttonText}>Contact</Text>
           </TouchableOpacity>
         )}
-
-        <TouchableOpacity
-          style={[styles.login_buttonCal, { marginTop: 10 }]}
-          //onPress={() => addToCalendar(c)}  Tirei esse campo e acrescentei o abaixo para verificar no meu código
-           onPress={() => navigation.navigate("Calendar")}
-        >
-          <Text style={styles.login_buttonText}>Add to Calendar</Text>
-        </TouchableOpacity>
       </View>
     );
-  };
-
-  const logout = async () => {
-    try {
-      await auth.signOut();
-      navigation.replace("Login");
-    } catch (e) {
-      Alert.alert("Logout error", e.message);
-    }
   };
 
   return (
@@ -363,44 +283,30 @@ export default function HomeScreen() {
         style={[styles.background, { backgroundColor: "rgba(2, 3, 129, 1)" }]}
         resizeMode="cover"
       >
-        <View style={styles.overlay}>
-          <ScrollView
-            contentContainerStyle={{ alignItems: "center", paddingBottom: 40 }}
+        <ScrollView
+          contentContainerStyle={{ alignItems: "center", paddingBottom: 40 }}
+        >
+          <Text
+            style={{
+              fontSize: 18,
+              color: "#fff",
+              marginTop: 30,
+              fontStyle: "italic",
+              textAlign: "center",
+              paddingHorizontal: 20,
+            }}
           >
-            <Text
-              style={{
-                fontSize: 18,
-                color: "#fff",
-                marginTop: 30,
-                fontStyle: "italic",
-                textAlign: "center",
-                paddingHorizontal: 20,
-              }}
-            >
-              {kindMessage}
+            {kindMessage}
+          </Text>
+
+          {appointments.length === 0 && (
+            <Text style={{ color: "#ccc", textAlign: "center", marginTop: 50 }}>
+              No scheduled appointments.
             </Text>
+          )}
 
-            {appointments.length === 0 && (
-              <Text
-                style={{ color: "#ccc", textAlign: "center", marginTop: 50 }}
-              >
-                No scheduled appointments.
-              </Text>
-            )}
-
-            {appointments.map(renderAppointment)}
-
-            <TouchableOpacity
-              style={[
-                styles.logout_button,
-                { backgroundColor: "red", marginTop: 20, width: "95%" },
-              ]}
-              onPress={logout}
-            >
-              <Text style={styles.login_buttonText}>Logout</Text>
-            </TouchableOpacity>
-          </ScrollView>
-        </View>
+          {appointments.map(renderAppointment)}
+        </ScrollView>
       </ImageBackground>
     </SafeAreaView>
   );
