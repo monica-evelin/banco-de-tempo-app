@@ -1,12 +1,19 @@
 import React, { useState } from "react";
 import { View, StyleSheet, Image } from "react-native";
 import { Calendar } from "react-native-calendars";
+import { SafeAreaView, StatusBar, Platform } from "react-native";
 
 
 export default function CalendarScreen() {
   const [selectedDate, setSelectedDate] = useState(null);
 
   return (
+    <SafeAreaView
+          style={{
+            flex: 1,
+            paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
+          }}
+        >
     
     <View style={styles.container}>
       <View style={styles.calendarWrapper}>
@@ -33,6 +40,7 @@ export default function CalendarScreen() {
         />
       </View>
     </View>
+    </SafeAreaView>
   );
 }
 
@@ -57,3 +65,7 @@ const styles = StyleSheet.create({
     opacity: 0.9,
   },
 });
+
+
+
+

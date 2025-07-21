@@ -17,6 +17,7 @@ import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import styles from "../style/style";
 import Background from "../components/Background";
 
+
 export default function ProfileScreen() {
   const { user, logout } = useAuth();
   const [name, setName] = useState("");
@@ -267,5 +268,6 @@ export default function ProfileScreen() {
         </TouchableOpacity>
       </ScrollView>
     </Background>
+   
   );
 }
