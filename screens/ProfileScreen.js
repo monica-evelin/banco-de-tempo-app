@@ -17,11 +17,11 @@ import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import styles from "../style/style";
 import Background from "../components/Background";
 
-
 export default function ProfileScreen() {
   const { user, logout } = useAuth();
   const [name, setName] = useState("");
   const [birthDate, setBirthDate] = useState("");
+  const [phone, setPhone] = useState("");
   const [skill, setSkill] = useState("");
   const [address, setAddress] = useState("");
   const [photoURL, setPhotoURL] = useState(null);
@@ -37,6 +37,7 @@ export default function ProfileScreen() {
           const data = docSnap.data();
           setName(data.fullName || "");
           setBirthDate(data.birthDate || "");
+          setPhone(data.phone || "");
           setSkill(data.skill || "");
           setAddress(data.address || "");
           setPhotoURL(data.photoURL || null);
@@ -71,6 +72,7 @@ export default function ProfileScreen() {
         {
           fullName: name,
           birthDate,
+          phone,
           skill,
           address,
           photoURL,
@@ -101,9 +103,13 @@ export default function ProfileScreen() {
   };
 
   const pickImage = async () => {
-    const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    const permissionResult =
+      await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (permissionResult.status !== "granted") {
-      Alert.alert("Permission required", "You need to allow access to the gallery.");
+      Alert.alert(
+        "Permission required",
+        "You need to allow access to the gallery."
+      );
       return;
     }
 
@@ -228,6 +234,14 @@ export default function ProfileScreen() {
           keyboardType="numeric"
           maxLength={10}
         />
+        <Text style={[styles.login_label, { marginTop: 16 }]}>Phone:</Text>
+        <TextInput
+          style={styles.login_input}
+          value={phone}
+          onChangeText={setPhone}
+          placeholder="Your phone number"
+          keyboardType="phone-pad"
+        />
 
         <Text style={[styles.login_label, { marginTop: 16 }]}>Skill:</Text>
         <TextInput
@@ -268,6 +282,5 @@ export default function ProfileScreen() {
         </TouchableOpacity>
       </ScrollView>
     </Background>
-   
   );
 }
