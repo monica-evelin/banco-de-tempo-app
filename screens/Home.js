@@ -333,7 +333,8 @@ export default function HomeScreen() {
 
         <TouchableOpacity
           style={[styles.login_buttonCal, { marginTop: 10 }]}
-          onPress={() => addToCalendar(c)}
+          //onPress={() => addToCalendar(c)}  Tirei esse campo e acrescentei o abaixo para verificar no meu código
+           onPress={() => navigation.navigate("Calendar")}
         >
           <Text style={styles.login_buttonText}>Add to Calendar</Text>
         </TouchableOpacity>
@@ -392,7 +393,7 @@ export default function HomeScreen() {
             <TouchableOpacity
               style={[
                 styles.logout_button,
-                { backgroundColor: "#2196F3", marginTop: 20, width: "95%" },
+                { backgroundColor: "red", marginTop: 20, width: "95%" },
               ]}
               onPress={logout}
             >
