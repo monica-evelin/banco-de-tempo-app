@@ -9,6 +9,7 @@ import {
   Linking,
   SafeAreaView,
   Image,
+  ImageBackground,
 } from "react-native";
 import { collection, query, onSnapshot } from "firebase/firestore";
 import { db } from "../firebaseConfig";
@@ -62,125 +63,119 @@ export default function DetailsScreen({ route }) {
     : new Date();
 
   return (
-    <SafeAreaView style={styles.container}>
-      <ScrollView contentContainerStyle={styles.content}>
-        <Text style={styles.title}>{compromisso?.title || "Details"}</Text>
+    <SafeAreaView style={styles.safeArea}>
+      <ImageBackground
+        source={require("../assets/images/fundo.png")}
+        style={styles.background}
+      >
+        <View style={styles.overlay}>
+          <ScrollView contentContainerStyle={styles.content}>
+            <Text style={styles.title}>{compromisso?.title || "Details"}</Text>
 
-        <View style={styles.card}>
-          <View style={styles.row}>
-            <Icon name="account" size={24} color="#4CAF50" />
-            <Text style={styles.text}>{compromisso?.title}</Text>
-          </View>
-          <View style={styles.row}>
-            <Icon name="email-outline" size={24} color="#4CAF50" />
-            <Text style={styles.text}>{compromisso?.email || "No email"}</Text>
-          </View>
-          <View style={styles.row}>
-            <Icon name="map-marker" size={24} color="#4CAF50" />
-            <Text style={styles.text}>
-              {compromisso?.morada || "No address"}
-            </Text>
-          </View>
-          <View style={styles.row}>
-            <Icon name="calendar" size={24} color="#4CAF50" />
-            <Text style={styles.text}>
-              {dateObj.toLocaleDateString()} -{" "}
-              {dateObj.toLocaleTimeString([], {
-                hour: "2-digit",
-                minute: "2-digit",
-              })}
-            </Text>
-          </View>
+            <Text style={styles.sectionTitle}></Text>
+            {users.length === 0 ? (
+              <Text style={styles.noUsers}>
+                No users found for this service.
+              </Text>
+            ) : (
+              users.map((user, index) => (
+                <View key={index} style={styles.userCard}>
+                  <View style={styles.userInfo}>
+                    <View style={styles.row}>
+                      <Icon name="account" size={20} color="#4CAF50" />
+                      <Text style={styles.cardTitle}>
+                        {user.fullName || "No name"}
+                      </Text>
+                    </View>
+                    <View style={styles.row}>
+                      <Icon name="email-outline" size={20} color="#4CAF50" />
+                      <Text style={styles.cardDescription}>
+                        {user.email || "No email"}
+                      </Text>
+                    </View>
+                    <View style={styles.row}>
+                      <Icon name="phone" size={20} color="#4CAF50" />
+                      <Text style={styles.cardDescription}>
+                        {user.phone || "No phone"}
+                      </Text>
+                    </View>
+                  </View>
+
+                  <Image
+                    source={
+                      user.photoURL
+                        ? { uri: user.photoURL }
+                        : require("../assets/images/perfil.png")
+                    }
+                    style={styles.userImage}
+                  />
+
+                  <View style={styles.buttonContainer}>
+                    {(user.email || user.phone) && (
+                      <TouchableOpacity
+                        style={styles.contactButton}
+                        onPress={() => contactOptions(user.email, user.phone)}
+                      >
+                        <Icon name="contacts" size={18} color="#fff" />
+                        <Text style={styles.contactButtonText}>Contact</Text>
+                      </TouchableOpacity>
+                    )}
+                  </View>
+                </View>
+              ))
+            )}
+          </ScrollView>
         </View>
-
-        <Text style={styles.sectionTitle}>Users offering this service:</Text>
-
-        {users.length === 0 ? (
-          <Text style={styles.noUsers}>No users found for this service.</Text>
-        ) : (
-          users.map((user, index) => (
-            <View key={index} style={styles.userCard}>
-              <View style={styles.userInfo}>
-                <View style={styles.row}>
-                  <Icon name="account" size={20} color="#4CAF50" />
-                  <Text style={styles.cardTitle}>
-                    {user.fullName || "No name"}
-                  </Text>
-                </View>
-                <View style={styles.row}>
-                  <Icon name="email-outline" size={20} color="#4CAF50" />
-                  <Text style={styles.cardDescription}>
-                    {user.email || "No email"}
-                  </Text>
-                </View>
-                <View style={styles.row}>
-                  <Icon name="phone" size={20} color="#4CAF50" />
-                  <Text style={styles.cardDescription}>
-                    {user.phone || "No phone"}
-                  </Text>
-                </View>
-              </View>
-
-              <Image
-                source={
-                  user.photoURL
-                    ? { uri: user.photoURL }
-                    : require("../assets/images/perfil.png")
-                }
-                style={styles.userImage}
-              />
-
-              <View style={styles.buttonContainer}>
-                {(user.email || user.phone) && (
-                  <TouchableOpacity
-                    style={styles.contactButton}
-                    onPress={() => contactOptions(user.email, user.phone)}
-                  >
-                    <Icon name="contacts" size={18} color="#fff" />
-                    <Text style={styles.contactButtonText}>Contact</Text>
-                  </TouchableOpacity>
-                )}
-              </View>
-            </View>
-          ))
-        )}
-      </ScrollView>
+      </ImageBackground>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: "#020381", // azul escuro
+  },
   container: {
     flex: 1,
-    paddingHorizontal: 20,
-    backgroundColor: "rgba(2, 3, 129, 1)",
+    position: "relative",
   },
-  content: { paddingVertical: 30 },
+  background: {
+    flex: 1,
+    width: "100%",
+    height: "100%",
+  },
+  overlay: {
+    flex: 1,
+    backgroundColor: "rgba(0, 0, 0, 0.01)",
+    paddingTop: 20,
+  },
+  content: {
+    paddingVertical: 30,
+    paddingHorizontal: 20,
+    alignItems: "center",
+  },
   title: {
     fontSize: 26,
     fontWeight: "bold",
     marginBottom: 20,
     textAlign: "center",
     color: "#fff",
+    zIndex: 1,
   },
-  card: {
-    backgroundColor: "#fff",
-    borderRadius: 15,
-    padding: 20,
-    marginBottom: 20,
-  },
-  row: { flexDirection: "row", alignItems: "center", marginBottom: 10 },
-  text: { marginLeft: 10, fontSize: 18, color: "#333" },
-
   sectionTitle: {
     fontSize: 20,
     fontWeight: "600",
     marginBottom: 10,
     color: "#fff",
+    zIndex: 1,
   },
-  noUsers: { fontSize: 16, color: "#ccc", textAlign: "center", marginTop: 20 },
-
-  // User Card
+  noUsers: {
+    fontSize: 16,
+    color: "#ccc",
+    textAlign: "center",
+    marginTop: 20,
+  },
   userCard: {
     backgroundColor: "#fff",
     borderRadius: 15,
@@ -199,7 +194,7 @@ const styles = StyleSheet.create({
     height: 64,
     borderRadius: 32,
     marginLeft: 16,
-    marginTop: -15, // <<< aqui para subir a imagem
+    marginTop: -15,
     alignSelf: "flex-start",
     backgroundColor: "#ccc",
   },
@@ -222,7 +217,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     marginLeft: 8,
   },
-
   cardTitle: {
     fontWeight: "bold",
     fontSize: 16,
@@ -233,5 +227,10 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: "#666",
     marginLeft: 10,
+  },
+  row: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 10,
   },
 });

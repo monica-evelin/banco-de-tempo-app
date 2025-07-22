@@ -22,26 +22,29 @@ import {
   where,
   onSnapshot,
   addDoc,
+  updateDoc,
+  deleteDoc,
+  doc,
   Timestamp,
 } from "firebase/firestore";
-import { db } from "../firebaseConfig"; // ajuste o caminho conforme o seu projeto
+import { db } from "../firebaseConfig";
 
 export default function CalendarScreen({ route }) {
-  // Recebe o uid do usuário logado (pode vir do contexto, props, etc)
   const userId = route?.params?.uid || "usuarioPadrao";
 
   const [selectedDate, setSelectedDate] = useState(null);
-  const [appointments, setAppointments] = useState({}); // compromissos organizados por data
+  const [appointments, setAppointments] = useState({});
   const [modalVisible, setModalVisible] = useState(false);
 
   const [newTitle, setNewTitle] = useState("");
   const [newTime, setNewTime] = useState(new Date());
   const [showTimePicker, setShowTimePicker] = useState(false);
 
+  const [editingAppointment, setEditingAppointment] = useState(null);
+
   useEffect(() => {
     if (!userId) return;
 
-    // Query para ouvir compromissos do usuário
     const q = query(collection(db, "compromissos"), where("uid", "==", userId));
 
     const unsubscribe = onSnapshot(q, (querySnapshot) => {
@@ -49,7 +52,7 @@ export default function CalendarScreen({ route }) {
       querySnapshot.forEach((doc) => {
         const data = doc.data();
         const dateObj = data.datetime.toDate();
-        const dateStr = dateObj.toISOString().split("T")[0]; // yyyy-mm-dd
+        const dateStr = dateObj.toISOString().split("T")[0];
         const timeStr = dateObj.toLocaleTimeString([], {
           hour: "2-digit",
           minute: "2-digit",
@@ -76,7 +79,20 @@ export default function CalendarScreen({ route }) {
     setSelectedDate(day.dateString);
   };
 
-  const addAppointment = async () => {
+  const openEditModal = (appointment) => {
+    setEditingAppointment(appointment);
+    setNewTitle(appointment.title);
+
+    const [hours, minutes] = appointment.time.split(":");
+    const timeDate = new Date();
+    timeDate.setHours(parseInt(hours, 10));
+    timeDate.setMinutes(parseInt(minutes, 10));
+    setNewTime(timeDate);
+
+    setModalVisible(true);
+  };
+
+  const saveAppointment = async () => {
     if (!newTitle.trim()) {
       Alert.alert("Please enter the appointment title");
       return;
@@ -86,7 +102,6 @@ export default function CalendarScreen({ route }) {
       return;
     }
 
-    // Cria um Date combinando selectedDate + newTime
     const [year, month, day] = selectedDate.split("-");
     const dateTime = new Date(
       year,
@@ -97,25 +112,58 @@ export default function CalendarScreen({ route }) {
     );
 
     try {
-      await addDoc(collection(db, "compromissos"), {
-        uid: userId,
-        title: newTitle,
-        descricao: "",
-        tipo: "default",
-        email: "",
-        telemovel: "",
-        datetime: Timestamp.fromDate(dateTime),
-      });
+      if (editingAppointment) {
+        await updateDoc(doc(db, "compromissos", editingAppointment.id), {
+          title: newTitle,
+          datetime: Timestamp.fromDate(dateTime),
+        });
+      } else {
+        await addDoc(collection(db, "compromissos"), {
+          uid: userId,
+          title: newTitle,
+          descricao: "",
+          tipo: "default",
+          email: "",
+          telemovel: "",
+          datetime: Timestamp.fromDate(dateTime),
+        });
+      }
 
       setNewTitle("");
       setNewTime(new Date());
+      setEditingAppointment(null);
       setModalVisible(false);
     } catch (error) {
       Alert.alert("Error saving appointment:", error.message);
     }
   };
 
-  // Marca os dias com compromissos no calendário
+  const deleteAppointment = () => {
+    Alert.alert(
+      "Delete Appointment",
+      "Are you sure you want to delete this appointment?",
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Delete",
+          style: "destructive",
+          onPress: async () => {
+            try {
+              await deleteDoc(doc(db, "compromissos", editingAppointment.id));
+              setNewTitle("");
+              setNewTime(new Date());
+              setEditingAppointment(null);
+              setModalVisible(false);
+            } catch (error) {
+              Alert.alert("Error deleting appointment:", error.message);
+            }
+          },
+        },
+      ],
+      { cancelable: true }
+    );
+  };
+
   const markedDates = Object.keys(appointments).reduce((acc, date) => {
     acc[date] = { marked: true, dotColor: "#76ff03" };
     if (date === selectedDate) {
@@ -159,6 +207,9 @@ export default function CalendarScreen({ route }) {
                 Alert.alert("Please select a date first");
                 return;
               }
+              setEditingAppointment(null);
+              setNewTitle("");
+              setNewTime(new Date());
               setModalVisible(true);
             }}
             color="#43a047"
@@ -175,11 +226,14 @@ export default function CalendarScreen({ route }) {
               data={appointments[selectedDate] || []}
               keyExtractor={(item) => item.id}
               renderItem={({ item }) => (
-                <View style={styles.appointmentItem}>
+                <TouchableOpacity
+                  style={styles.appointmentItem}
+                  onPress={() => openEditModal(item)}
+                >
                   <Text style={styles.appointmentText}>
                     {item.time} - {item.title}
                   </Text>
-                </View>
+                </TouchableOpacity>
               )}
               ListEmptyComponent={
                 <Text style={{ color: "white", textAlign: "center" }}>
@@ -193,7 +247,9 @@ export default function CalendarScreen({ route }) {
         <Modal visible={modalVisible} animationType="slide" transparent={true}>
           <View style={styles.modalBackground}>
             <View style={styles.modalContent}>
-              <Text style={styles.modalTitle}>New Appointment</Text>
+              <Text style={styles.modalTitle}>
+                {editingAppointment ? "Edit Appointment" : "New Appointment"}
+              </Text>
 
               <TextInput
                 placeholder="Title"
@@ -230,11 +286,28 @@ export default function CalendarScreen({ route }) {
               <View style={styles.modalButtons}>
                 <Button
                   title="Cancel"
-                  onPress={() => setModalVisible(false)}
+                  onPress={() => {
+                    setModalVisible(false);
+                    setEditingAppointment(null);
+                  }}
                   color="#d32f2f"
                 />
-                <Button title="Save" onPress={addAppointment} color="#43a047" />
+                <Button
+                  title="Save"
+                  onPress={saveAppointment}
+                  color="#43a047"
+                />
               </View>
+
+              {editingAppointment && (
+                <View style={{ marginTop: 10 }}>
+                  <Button
+                    title="Delete"
+                    onPress={deleteAppointment}
+                    color="#d32f2f"
+                  />
+                </View>
+              )}
             </View>
           </View>
         </Modal>
