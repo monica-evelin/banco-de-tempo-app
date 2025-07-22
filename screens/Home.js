@@ -9,6 +9,8 @@ import {
   Alert,
   Linking,
   Platform,
+  SafeAreaView,
+  StatusBar,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { auth, db } from "../firebaseConfig";
@@ -57,7 +59,7 @@ function getImageByType(type) {
       return require("../assets/images/default.png");
   }
 }
-// translate the type field to English
+
 function translateType(type) {
   if (!type) return "";
   switch (type.toLowerCase()) {
@@ -74,7 +76,7 @@ function translateType(type) {
     case "pet sitting":
       return "Pet Sitting";
     case "faxineira":
-    case "housecleaning":
+    case "house cleaning":
       return "House Cleaning";
     case "jardinagem":
     case "gardening":
@@ -86,11 +88,13 @@ function translateType(type) {
     case "tutoring":
       return "Tutoring";
     default:
-      return type;
+      return type
+        .split(" ")
+        .map((w) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
+        .join(" ");
   }
 }
 
-// translate the description field to English (add cases as needed)
 function translateDescription(desc) {
   if (!desc) return "";
   const lowerDesc = desc.toLowerCase();
@@ -119,25 +123,7 @@ function translateDescription(desc) {
   if (lowerDesc.includes("tutor")) {
     return "Tutoring services";
   }
-  // Se não achar correspondência, retorna original
   return desc;
-}
-
-const openCalendarApp = () => {
-  if (Platform.OS === "ios") {
-    Linking.openURL("calshow://");
-  } else if (Platform.OS === "android") {
-    Linking.openURL("content://com.android.calendar/time/");
-  }
-};
-
-async function getCalendarPermissions() {
-  const { status } = await Calendar.requestCalendarPermissionsAsync();
-  if (status !== "granted") {
-    Alert.alert("Permission to access calendar denied!");
-    return false;
-  }
-  return true;
 }
 
 export default function HomeScreen() {
@@ -187,49 +173,6 @@ export default function HomeScreen() {
     return unsubscribe;
   }, []);
 
-  const addToCalendar = async (c) => {
-    const hasPermission = await getCalendarPermissions();
-    if (!hasPermission) return;
-
-    let calendarId;
-
-    if (Platform.OS === "ios") {
-      const calendars = await Calendar.getCalendarsAsync(
-        Calendar.EntityTypes.EVENT
-      );
-      calendarId = calendars.find((cal) => cal.allowsModifications)?.id;
-    } else {
-      const defaultCal = await Calendar.getDefaultCalendarAsync();
-      calendarId = defaultCal?.id;
-
-      if (!calendarId) {
-        calendarId = await Calendar.createCalendarAsync({
-          title: "Time Bank",
-          color: "blue",
-          entityType: Calendar.EntityTypes.EVENT,
-          source: { isLocalAccount: true, name: "Time Bank" },
-          name: "Time Bank",
-          ownerAccount: "personal",
-          accessLevel: Calendar.CalendarAccessLevel.OWNER,
-        });
-      }
-    }
-
-    try {
-      await Calendar.createEventAsync(calendarId, {
-        title: c.title,
-        startDate: c.dateObj.toISOString(),
-        endDate: new Date(c.dateObj.getTime() + 60 * 60 * 1000).toISOString(),
-        notes: c.descricao,
-        timeZone: "GMT",
-      });
-      Alert.alert("Event added to calendar!");
-      openCalendarApp();
-    } catch (error) {
-      Alert.alert("Error creating event: " + error.message);
-    }
-  };
-
   const contactOptions = (c) => {
     const options = [];
 
@@ -255,7 +198,12 @@ export default function HomeScreen() {
   };
 
   const openDetails = (appointment) => {
-    navigation.navigate("Details", { compromisso: appointment });
+    const compromisso = {
+      ...appointment,
+      dateStr: appointment.dateObj.toISOString(), // envia a data como string ISO
+    };
+
+    navigation.navigate("Details", { compromisso });
   };
 
   const renderAppointment = (c) => {
@@ -319,33 +267,22 @@ export default function HomeScreen() {
             <Text style={styles.login_buttonText}>Contact</Text>
           </TouchableOpacity>
         )}
-
-        <TouchableOpacity
-          style={[styles.login_button, { marginTop: 10 }]}
-          onPress={() => addToCalendar(c)}
-        >
-          <Text style={styles.login_buttonText}>Add to Calendar</Text>
-        </TouchableOpacity>
       </View>
     );
   };
 
-  const logout = async () => {
-    try {
-      await auth.signOut();
-      navigation.replace("Login");
-    } catch (e) {
-      Alert.alert("Logout error", e.message);
-    }
-  };
-
   return (
-    <ImageBackground
-      source={BACKGROUND_IMAGE}
-      style={[styles.background, { backgroundColor: "rgba(2, 3, 129, 1)" }]}
-      resizeMode="cover"
+    <SafeAreaView
+      style={{
+        flex: 1,
+        paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
+      }}
     >
-      <View style={styles.overlay}>
+      <ImageBackground
+        source={BACKGROUND_IMAGE}
+        style={[styles.background, { backgroundColor: "rgba(2, 3, 129, 1)" }]}
+        resizeMode="cover"
+      >
         <ScrollView
           contentContainerStyle={{ alignItems: "center", paddingBottom: 40 }}
         >
@@ -369,18 +306,8 @@ export default function HomeScreen() {
           )}
 
           {appointments.map(renderAppointment)}
-
-          <TouchableOpacity
-            style={[
-              styles.logout_button,
-              { backgroundColor: "#2196F3", marginTop: 20, width: "95%" },
-            ]}
-            onPress={logout}
-          >
-            <Text style={styles.login_buttonText}>Logout</Text>
-          </TouchableOpacity>
         </ScrollView>
-      </View>
-    </ImageBackground>
+      </ImageBackground>
+    </SafeAreaView>
   );
 }
