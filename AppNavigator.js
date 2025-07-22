@@ -1,19 +1,21 @@
 import React from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import { useAuth } from "./context/AuthContext"; // IMPORTANTE!
 
 import Home from "./screens/Home";
-import createAppointment from "./screens/CreateAppointment";
+import CreateAppointment from "./screens/CreateAppointment";
 import Login from "./screens/Login";
 import Signup from "./screens/Signup";
 import DetailsScreen from "./screens/DetailsScreen";
 import MainTabs from "./MainTabs";
-import { useAuth } from "./context/AuthContext";
+
+import TimeExchangeScreen from "./screens/TimeExchangeScreen";
 
 const Stack = createNativeStackNavigator();
 
 export default function AppNavigator() {
-  const { user } = useAuth(); // Pega o usuário atual
+  const { user } = useAuth(); // Get current user
 
   return (
     <NavigationContainer>
@@ -23,9 +25,14 @@ export default function AppNavigator() {
             <Stack.Screen name="MainTabs" component={MainTabs} />
             <Stack.Screen
               name="createAppointment"
-              component={createAppointment}
+              component={CreateAppointment}
             />
             <Stack.Screen name="Details" component={DetailsScreen} />
+            <Stack.Screen
+              name="TimeExchange"
+              component={TimeExchangeScreen}
+              options={{ title: "Time Exchange" }}
+            />
           </>
         ) : (
           <>
