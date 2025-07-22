@@ -9,7 +9,7 @@ import Login from "./screens/Login";
 import Signup from "./screens/Signup";
 import DetailsScreen from "./screens/DetailsScreen";
 import MainTabs from "./MainTabs";
-import { useAuth } from "./context/AuthContext";
+
 import TimeExchangeScreen from "./screens/TimeExchangeScreen";
 
 const Stack = createNativeStackNavigator();
