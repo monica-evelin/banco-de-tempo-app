@@ -17,7 +17,6 @@ import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import styles from "../style/style";
 import Background from "../components/Background";
 
-
 export default function ProfileScreen() {
   const { user, logout } = useAuth();
   const [name, setName] = useState("");
@@ -86,22 +85,32 @@ export default function ProfileScreen() {
   };
 
   const uploadImage = async (uri) => {
-    const response = await fetch(uri);
-    const blob = await response.blob();
-    const storageRef = ref(storage, `profileImages/${user.uid}.jpg`);
-    await uploadBytes(storageRef, blob);
-    const downloadURL = await getDownloadURL(storageRef);
-    setPhotoURL(downloadURL);
+    if (!uri) {
+      throw new Error("Image URI is undefined.");
+    }
 
-    await setDoc(
-      doc(db, "users", user.uid),
-      { photoURL: downloadURL },
-      { merge: true }
-    );
+    try {
+      const response = await fetch(uri);
+      const blob = await response.blob();
+      const storageRef = ref(storage, `profileImages/${user.uid}.jpg`);
+      await uploadBytes(storageRef, blob);
+      const downloadURL = await getDownloadURL(storageRef);
+      setPhotoURL(downloadURL);
+
+      await setDoc(
+        doc(db, "users", user.uid),
+        { photoURL: downloadURL },
+        { merge: true }
+      );
+    } catch (error) {
+      console.log("Upload error:", error.message);
+      throw error;
+    }
   };
 
   const pickImage = async () => {
-    const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    const permissionResult =
+      await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (permissionResult.status !== "granted") {
       Alert.alert("Permission required", "You need to allow access to the gallery.");
       return;
@@ -113,8 +122,12 @@ export default function ProfileScreen() {
       quality: 1,
     });
 
-    if (!result.canceled) {
+    if (!result.canceled && result.assets && result.assets.length > 0) {
       const imageUri = result.assets[0].uri;
+      if (!imageUri) {
+        Alert.alert("Erro", "Imagem inválida.");
+        return;
+      }
       setLoading(true);
       try {
         await uploadImage(imageUri);
@@ -139,8 +152,12 @@ export default function ProfileScreen() {
       quality: 1,
     });
 
-    if (!result.canceled) {
+    if (!result.canceled && result.assets && result.assets.length > 0) {
       const imageUri = result.assets[0].uri;
+      if (!imageUri) {
+        Alert.alert("Erro", "Imagem inválida.");
+        return;
+      }
       setLoading(true);
       try {
         await uploadImage(imageUri);
@@ -268,6 +285,5 @@ export default function ProfileScreen() {
         </TouchableOpacity>
       </ScrollView>
     </Background>
-   
   );
 }
