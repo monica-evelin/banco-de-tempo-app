@@ -22,6 +22,7 @@ import {
   orderBy,
   limit,
   onSnapshot,
+  where,
 } from "firebase/firestore";
 
 // background image
@@ -141,6 +142,7 @@ export default function HomeScreen() {
 
     const q = query(
       collection(db, "compromissos"),
+      where("showInHome", "==", true), //Verificar se funciona
       orderBy("datetime", "asc"),
       limit(10)
     );
@@ -262,9 +264,9 @@ export default function HomeScreen() {
         {(c.email || c.telemovel) && (
           <TouchableOpacity
             style={styles.login_button}
-            onPress={() => contactOptions(c)}
+            onPress={() => openDetails(c)}
           >
-            <Text style={styles.login_buttonText}>Contact</Text>
+            <Text style={styles.login_buttonText}>Services</Text>
           </TouchableOpacity>
         )}
       </View>
