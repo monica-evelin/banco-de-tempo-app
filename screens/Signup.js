@@ -283,7 +283,7 @@ export default function Signup({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "rgba(2, 3, 129, 1)",
+    backgroundColor: "transparent",
   },
   scroll_container: {
     paddingHorizontal: 20,
