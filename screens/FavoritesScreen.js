@@ -18,6 +18,9 @@ import {
 } from "firebase/firestore";
 import { useAuth } from "../context/AuthContext";
 
+//Importar imagem de fundo
+import Background from "../components/Background";
+
 // Ícones por tipo de serviço
 // Ícones para cada tipo de serviço
 const skillIcons = {
@@ -49,7 +52,6 @@ const formatSkill = (skill) => {
   const cleaned = skill?.toLowerCase().replace(/\s/g, "") || "outro";
   return map[cleaned] || "Outro";
 };
-
 
 export default function FavoritesScreen() {
   const { user: currentUser, setUser } = useAuth();
@@ -108,7 +110,7 @@ export default function FavoritesScreen() {
 
       setGroupedFavorites(sortedGroups);
     } catch (error) {
-      console.error("Erro ao buscar favoritos:", error);
+      console.error("Error fetching favorites:", error);
     }
   };
 
@@ -124,7 +126,7 @@ export default function FavoritesScreen() {
 
       setUser({ ...currentUser, favorites: newFavorites });
     } catch (error) {
-      console.error("Erro ao remover dos favoritos:", error);
+      console.error("Erro removing favorite:", error);
     }
   };
 
@@ -137,45 +139,61 @@ export default function FavoritesScreen() {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Meus Favoritos</Text>
-
-      {groupedFavorites.length === 0 ? (
-        <Text style={styles.noFav}>Você ainda não tem favoritos.</Text>
-      ) : (
-        <FlatList
-          data={groupedFavorites}
-          keyExtractor={(item) => item.skill}
-          renderItem={({ item }) => (
-            <View style={styles.group}>
-              <Text style={styles.groupTitle}>
-                {skillIcons[formatSkill(item.skill)] || "🔧"} {formatSkill(item.skill)}
-              </Text>
-              {item.users.map((user) => (
-                <View key={user.uid} style={styles.card}>
-                  <View style={styles.headerRow}>
-                    <Text style={styles.header}>{user.fullName || "Sem nome"}</Text>
-                    <TouchableOpacity onPress={() => removeFavorite(user.uid)}>
-                      <Text style={styles.star}>★</Text>
-                    </TouchableOpacity>
+    <Background>
+      <View style={styles.container}>
+        <Text style={styles.title}>My Favorites</Text>
+        {groupedFavorites.length === 0 ? (
+          <Text style={styles.noFav}>Uou don't have any favorites yet.</Text>
+        ) : (
+          <FlatList
+            data={groupedFavorites}
+            keyExtractor={(item) => item.skill}
+            renderItem={({ item }) => (
+              <View style={styles.group}>
+                <Text style={styles.groupTitle}>
+                  {skillIcons[formatSkill(item.skill)] || "🔧"}{" "}
+                  {formatSkill(item.skill)}
+                </Text>
+                {item.users.map((user) => (
+                  <View key={user.uid} style={styles.card}>
+                    <View style={styles.headerRow}>
+                      <Text style={styles.header}>
+                        {user.fullName || "Sem nome"}
+                      </Text>
+                      <TouchableOpacity
+                        onPress={() => removeFavorite(user.uid)}
+                      >
+                        <Text style={styles.star}>★</Text>
+                      </TouchableOpacity>
+                    </View>
+                    <Text style={styles.text}>
+                      Email: {user.email || "N/A"}
+                    </Text>
+                    <Text style={styles.text}>
+                      Phone: {user.phone || "N/A"}
+                    </Text>
+                    <View style={styles.buttons}>
+                      <TouchableOpacity
+                        onPress={() => call(user.phone)}
+                        style={styles.button}
+                      >
+                        <Text style={styles.buttonText}>Call</Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                        onPress={() => sendEmail(user.email)}
+                        style={styles.button}
+                      >
+                        <Text style={styles.buttonText}>Email</Text>
+                      </TouchableOpacity>
+                    </View>
                   </View>
-                  <Text style={styles.text}>Email: {user.email || "N/A"}</Text>
-                  <Text style={styles.text}>Telefone: {user.phone || "N/A"}</Text>
-                  <View style={styles.buttons}>
-                    <TouchableOpacity onPress={() => call(user.phone)} style={styles.button}>
-                      <Text style={styles.buttonText}>Ligar</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity onPress={() => sendEmail(user.email)} style={styles.button}>
-                      <Text style={styles.buttonText}>Email</Text>
-                    </TouchableOpacity>
-                  </View>
-                </View>
-              ))}
-            </View>
-          )}
-        />
-      )}
-    </View>
+                ))}
+              </View>
+            )}
+          />
+        )}
+      </View>
+    </Background>
   );
 }
 
@@ -183,18 +201,17 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 16,
-    backgroundColor: "#f7f7f7",
   },
   title: {
     fontSize: 24,
     fontWeight: "bold",
     marginBottom: 20,
-    color: "#333",
+    color: "#fff",
     textAlign: "center",
   },
   noFav: {
     textAlign: "center",
-    color: "#666",
+    color: "#ccc",
     fontSize: 16,
     marginTop: 30,
   },
@@ -205,7 +222,7 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: "bold",
     marginBottom: 10,
-    color: "#4A4A4A",
+    color: "fff" /*"#4A4A4A",*/,
     textTransform: "capitalize",
   },
   card: {
@@ -256,10 +273,3 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
 });
-
-
-
-
-
-
-
