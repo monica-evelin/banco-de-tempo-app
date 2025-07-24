@@ -75,16 +75,17 @@ const styles = StyleSheet.create({
 
   // ---- estilos para a HomeScreen ----
 
-  background: {
+  /* background: {
     flex: 1,
     width: "100%",
     height: "100%",
-  },
+  },*/
 
   overlay: {
     flex: 1,
-    backgroundColor: "rgba(0, 0, 0, 0.6)", // fundo escuro translúcido
+    backgroundColor: "rgba(0, 0, 0, 0.2)", // fundo escuro translúcido
     paddingTop: 20,
+    paddingHorizontal: 16, // opcional: espaço lateral
   },
 
   header: {
@@ -103,6 +104,11 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 4,
     elevation: 3,
+
+    // Adicionado
+    marginHorizontal: 16,
+    width: "90%",
+    alignSelf: "center",
   },
   cardImage: {
     width: "100%",

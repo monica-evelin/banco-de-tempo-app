@@ -59,7 +59,6 @@ export default function Signup({ navigation }) {
       password,
       confirmPassword,
       termsAccepted,
-      phone,
     } = form;
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -100,7 +99,7 @@ export default function Signup({ navigation }) {
       Alert.alert("Invalid Phone", "Please enter your phone number.");
       return;
     }
-    
+
     if (!skill) {
       Alert.alert("Invalid Skill", "Please select a skill.");
       return;
