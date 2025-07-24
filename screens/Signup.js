@@ -51,6 +51,7 @@ export default function Signup({ navigation }) {
     const {
       fullName,
       birthDate,
+      phone,
       nif,
       address,
       skill,

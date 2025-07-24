@@ -10,12 +10,12 @@ import {
   TouchableOpacity,
   Platform,
   SafeAreaView,
-  StatusBar,
   Alert,
+  ImageBackground,
+  ScrollView,
 } from "react-native";
 import { Calendar } from "react-native-calendars";
 import DateTimePicker from "@react-native-community/datetimepicker";
-
 import {
   collection,
   query,
@@ -35,11 +35,9 @@ export default function CalendarScreen({ route }) {
   const [selectedDate, setSelectedDate] = useState(null);
   const [appointments, setAppointments] = useState({});
   const [modalVisible, setModalVisible] = useState(false);
-
   const [newTitle, setNewTitle] = useState("");
   const [newTime, setNewTime] = useState(new Date());
   const [showTimePicker, setShowTimePicker] = useState(false);
-
   const [editingAppointment, setEditingAppointment] = useState(null);
 
   useEffect(() => {
@@ -174,174 +172,211 @@ export default function CalendarScreen({ route }) {
   }, {});
 
   return (
-    <SafeAreaView
-      style={{
-        flex: 1,
-        paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
-        backgroundColor: "#020381",
-      }}
-    >
-      <View style={styles.container}>
-        <Calendar
-          onDayPress={onDayPress}
-          markedDates={markedDates}
-          theme={{
-            backgroundColor: "#020381",
-            calendarBackground: "#020381",
-            textSectionTitleColor: "white",
-            selectedDayBackgroundColor: "#43a047",
-            selectedDayTextColor: "white",
-            todayTextColor: "#43a047",
-            dayTextColor: "white",
-            monthTextColor: "white",
-            arrowColor: "#43a047",
-            disabledDayTextColor: "#555",
-          }}
-        />
+    <SafeAreaView style={styles.safeArea}>
+      <ImageBackground
+        source={{
+          uri: "https://www.transparenttextures.com/patterns/inspiration-geometry.png",
+        }}
+        style={styles.background}
+        resizeMode="repeat"
+      >
+        <View style={styles.overlay}>
+          <ScrollView contentContainerStyle={styles.container}>
+            <Calendar
+              onDayPress={onDayPress}
+              markedDates={markedDates}
+              theme={{
+                backgroundColor: "transparent",
+                calendarBackground: "transparent",
+                textSectionTitleColor: "white",
+                selectedDayBackgroundColor: "#43a047",
+                selectedDayTextColor: "white",
+                todayTextColor: "#43a047",
+                dayTextColor: "white",
+                monthTextColor: "white",
+                arrowColor: "#43a047",
+                disabledDayTextColor: "#555",
+              }}
+            />
 
-        <View style={{ marginVertical: 10 }}>
-          <Button
-            title="Add Appointment"
-            onPress={() => {
-              if (!selectedDate) {
-                Alert.alert("Please select a date first");
-                return;
-              }
-              setEditingAppointment(null);
-              setNewTitle("");
-              setNewTime(new Date());
-              setModalVisible(true);
-            }}
-            color="#43a047"
-          />
+            <View style={{ marginVertical: 10 }}>
+              <Button
+                title="Add Appointment"
+                onPress={() => {
+                  if (!selectedDate) {
+                    Alert.alert("Please select a date first");
+                    return;
+                  }
+                  setEditingAppointment(null);
+                  setNewTitle("");
+                  setNewTime(new Date());
+                  setModalVisible(true);
+                }}
+                color="#43a047"
+              />
+            </View>
+
+            {selectedDate && (
+              <>
+                <Text style={styles.selectedDateText}>
+                  Appointments on {selectedDate}:
+                </Text>
+
+                <FlatList
+                  data={appointments[selectedDate] || []}
+                  keyExtractor={(item) => item.id}
+                  renderItem={({ item }) => (
+                    <TouchableOpacity
+                      style={styles.appointmentItem}
+                      onPress={() => openEditModal(item)}
+                    >
+                      <Text style={styles.appointmentText}>
+                        {item.time} - {item.title}
+                      </Text>
+                    </TouchableOpacity>
+                  )}
+                  ListEmptyComponent={
+                    <Text style={{ color: "white", textAlign: "center" }}>
+                      No appointments
+                    </Text>
+                  }
+                />
+              </>
+            )}
+          </ScrollView>
         </View>
+      </ImageBackground>
 
-        {selectedDate && (
-          <>
-            <Text style={styles.selectedDateText}>
-              Appointments on {selectedDate}:
+      {/* Modal fora da estrutura de ScrollView/View */}
+      <Modal visible={modalVisible} animationType="slide" transparent={true}>
+        <View style={styles.modalBackground}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>
+              {editingAppointment ? "Edit Appointment" : "New Appointment"}
             </Text>
 
-            <FlatList
-              data={appointments[selectedDate] || []}
-              keyExtractor={(item) => item.id}
-              renderItem={({ item }) => (
-                <TouchableOpacity
-                  style={styles.appointmentItem}
-                  onPress={() => openEditModal(item)}
-                >
-                  <Text style={styles.appointmentText}>
-                    {item.time} - {item.title}
-                  </Text>
-                </TouchableOpacity>
-              )}
-              ListEmptyComponent={
-                <Text style={{ color: "white", textAlign: "center" }}>
-                  No appointments
-                </Text>
-              }
+            <TextInput
+              placeholder="Title"
+              value={newTitle}
+              onChangeText={setNewTitle}
+              style={styles.input}
             />
-          </>
-        )}
 
-        <Modal visible={modalVisible} animationType="slide" transparent={true}>
-          <View style={styles.modalBackground}>
-            <View style={styles.modalContent}>
-              <Text style={styles.modalTitle}>
-                {editingAppointment ? "Edit Appointment" : "New Appointment"}
+            <TouchableOpacity
+              onPress={() => setShowTimePicker(true)}
+              style={styles.timePickerButton}
+            >
+              <Text style={styles.timePickerText}>
+                Time:{" "}
+                {newTime.toLocaleTimeString([], {
+                  hour: "2-digit",
+                  minute: "2-digit",
+                })}
               </Text>
+            </TouchableOpacity>
 
-              <TextInput
-                placeholder="Title"
-                value={newTitle}
-                onChangeText={setNewTitle}
-                style={styles.input}
+            {showTimePicker && (
+              <DateTimePicker
+                value={newTime}
+                mode="time"
+                display="default"
+                onChange={(event, date) => {
+                  setShowTimePicker(Platform.OS === "ios");
+                  if (date) setNewTime(date);
+                }}
               />
+            )}
 
-              <TouchableOpacity
-                onPress={() => setShowTimePicker(true)}
-                style={styles.timePickerButton}
-              >
-                <Text style={styles.timePickerText}>
-                  Time:{" "}
-                  {newTime.toLocaleTimeString([], {
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  })}
-                </Text>
-              </TouchableOpacity>
+            <View style={styles.modalButtons}>
+              <Button
+                title="Cancel"
+                onPress={() => {
+                  setModalVisible(false);
+                  setEditingAppointment(null);
+                }}
+                color="#d32f2f"
+              />
+              <Button title="Save" onPress={saveAppointment} color="#43a047" />
+            </View>
 
-              {showTimePicker && (
-                <DateTimePicker
-                  value={newTime}
-                  mode="time"
-                  display="default"
-                  onChange={(event, date) => {
-                    setShowTimePicker(Platform.OS === "ios");
-                    if (date) setNewTime(date);
-                  }}
-                />
-              )}
-
-              <View style={styles.modalButtons}>
+            {editingAppointment && (
+              <View style={{ marginTop: 10 }}>
                 <Button
-                  title="Cancel"
-                  onPress={() => {
-                    setModalVisible(false);
-                    setEditingAppointment(null);
-                  }}
+                  title="Delete"
+                  onPress={deleteAppointment}
                   color="#d32f2f"
                 />
-                <Button
-                  title="Save"
-                  onPress={saveAppointment}
-                  color="#43a047"
-                />
               </View>
-
-              {editingAppointment && (
-                <View style={{ marginTop: 10 }}>
-                  <Button
-                    title="Delete"
-                    onPress={deleteAppointment}
-                    color="#d32f2f"
-                  />
-                </View>
-              )}
-            </View>
+            )}
           </View>
-        </Modal>
-      </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 10 },
-  selectedDateText: { color: "white", fontSize: 18, marginVertical: 10 },
+  safeArea: {
+    flex: 1,
+    backgroundColor: "#3b5998",
+  },
+  background: {
+    flex: 1,
+    width: "100%",
+    height: "100%",
+  },
+
+  container: {
+    paddingBottom: 30,
+  },
+  selectedDateText: {
+    color: "white",
+    fontSize: 18,
+    marginVertical: 10,
+  },
   appointmentItem: {
     backgroundColor: "#e1e1f8",
     padding: 10,
     borderRadius: 8,
     marginVertical: 4,
   },
-  appointmentText: { fontSize: 16 },
-  modalBackground: {
-    flex: 1,
-    backgroundColor: "#000000aa",
-    justifyContent: "center",
-    padding: 20,
-  },
-  modalContent: { backgroundColor: "#fff", borderRadius: 12, padding: 20 },
-  modalTitle: { fontSize: 20, marginBottom: 10, fontWeight: "bold" },
-  input: {
-    borderBottomWidth: 1,
-    borderColor: "#ccc",
-    marginBottom: 20,
-    paddingVertical: 5,
+  appointmentText: {
     fontSize: 16,
   },
-  timePickerButton: { marginBottom: 20 },
-  timePickerText: { fontSize: 16, color: "#333" },
-  modalButtons: { flexDirection: "row", justifyContent: "space-between" },
+  modalBackground: {
+    flex: 1,
+    justifyContent: "center",
+    backgroundColor: "rgba(0,0,0,0.5)",
+    padding: 20,
+  },
+  modalContent: {
+    backgroundColor: "#fff",
+    borderRadius: 10,
+    padding: 20,
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    marginBottom: 10,
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: "#ccc",
+    padding: 10,
+    marginVertical: 10,
+    borderRadius: 6,
+  },
+  timePickerButton: {
+    backgroundColor: "#eee",
+    padding: 10,
+    borderRadius: 6,
+    marginVertical: 10,
+  },
+  timePickerText: {
+    fontSize: 16,
+  },
+  modalButtons: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
 });
