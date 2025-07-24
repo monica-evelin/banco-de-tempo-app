@@ -1,108 +1,265 @@
-import React, { useState, useCallback } from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
   FlatList,
   TouchableOpacity,
-  Image,
-  Platform,
-  StatusBar,
-  ImageBackground,
+  Linking,
+  StyleSheet,
 } from "react-native";
-import { database } from "../firebaseConfig";
-import { useNavigation, useFocusEffect } from "@react-navigation/native";
+import { db } from "../firebaseConfig";
+import {
+  doc,
+  getDocs,
+  collection,
+  query,
+  where,
+  updateDoc,
+} from "firebase/firestore";
 import { useAuth } from "../context/AuthContext";
-import styles from "../style/style";
+
+// Ícones por tipo de serviço
+// Ícones para cada tipo de serviço
+const skillIcons = {
+  "Elderly Care": "🧑‍🦽",
+  Gardening: "🌿",
+  Babysitting: "👶",
+  ComputerHelp: "💻",
+  Cooking: "🍳",
+  Housecleaning: "🧼",
+  "Pet Sitting": "🐾",
+  Tutoring: "📚",
+  Outro: "🔧", // fallback
+};
+
+// Função para formatar nome (com espaço e letras maiúsculas corretamente)
+const formatSkill = (skill) => {
+  // Garante maiúsculas e espaçamento bonito mesmo se vier minúsculo ou junto
+  const map = {
+    elderlycare: "Elderly Care",
+    gardening: "Gardening",
+    babysitting: "Babysitting",
+    computerhelp: "Computer Help",
+    cooking: "Cooking",
+    housecleaning: "House Cleaning",
+    petsitting: "Pet Sitting",
+    tutoring: "Tutoring",
+  };
+
+  const cleaned = skill?.toLowerCase().replace(/\s/g, "") || "outro";
+  return map[cleaned] || "Outro";
+};
+
 
 export default function FavoritesScreen() {
-  const { user } = useAuth();
-  const navigation = useNavigation();
-  const [favorites, setFavorites] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const { user: currentUser, setUser } = useAuth();
+  const [groupedFavorites, setGroupedFavorites] = useState([]);
 
-  useFocusEffect(
-    useCallback(() => {
-      const fetchFavorites = async () => {
-        setLoading(true);
-        try {
-          const userDoc = await database.collection("users").doc(user.uid).get();
-          const favIds = userDoc.data()?.favorites || [];
+  useEffect(() => {
+    fetchFavorites();
+  }, [currentUser?.favorites, currentUser?.uid]);
 
-          if (favIds.length === 0) {
-            setFavorites([]);
-            setLoading(false);
-            return;
-          }
+  const fetchFavorites = async () => {
+    if (!currentUser?.uid || !currentUser?.favorites?.length) {
+      setGroupedFavorites([]);
+      return;
+    }
 
-          // Firestore limita a consulta "in" a até 10 itens. Se precisar, implemente paginação.
-          const eventsSnapshot = await database
-            .collection("Events")
-            .where("__name__", "in", favIds.slice(0, 10)) // Limite a 10 para evitar erro
-            .get();
+    try {
+      const favIds = currentUser.favorites;
+      const usersRef = collection(db, "users");
 
-          const events = eventsSnapshot.docs.map((doc) => ({
-            id: doc.id,
+      // Divide os IDs em grupos de até 10 (limite da cláusula "in")
+      const chunks = [];
+      for (let i = 0; i < favIds.length; i += 10) {
+        chunks.push(favIds.slice(i, i + 10));
+      }
+
+      let list = [];
+      for (const chunk of chunks) {
+        const q = query(usersRef, where("__name__", "in", chunk));
+        const snapshot = await getDocs(q);
+        list = [
+          ...list,
+          ...snapshot.docs.map((doc) => ({
+            uid: doc.id,
             ...doc.data(),
-          }));
+          })),
+        ];
+      }
 
-          setFavorites(events);
-        } catch (error) {
-          console.log("Erro ao buscar favoritos:", error);
-        } finally {
-          setLoading(false);
-        }
-      };
+      // Agrupa por skill
+      const grouped = {};
+      list.forEach((user) => {
+        const skill = user.skill?.toLowerCase() || "outro";
+        if (!grouped[skill]) grouped[skill] = [];
+        grouped[skill].push(user);
+      });
 
-      fetchFavorites();
-    }, [user])
-  );
+      // Ordena os grupos e os usuários dentro de cada grupo
+      const sortedGroups = Object.keys(grouped)
+        .sort()
+        .map((skill) => ({
+          skill,
+          users: grouped[skill].sort((a, b) =>
+            (a.fullName || "").localeCompare(b.fullName || "")
+          ),
+        }));
 
-  if (loading) {
-    return (
-      <View style={[styles.container, styles.centered]}>
-        <Text style={styles.text}>Carregando favoritos...</Text>
-      </View>
-    );
-  }
+      setGroupedFavorites(sortedGroups);
+    } catch (error) {
+      console.error("Erro ao buscar favoritos:", error);
+    }
+  };
 
-  if (favorites.length === 0) {
-    return (
-      <View style={[styles.container, styles.centered]}>
-        <Text style={styles.text}>Você ainda não tem eventos favoritos.</Text>
-      </View>
-    );
-  }
+  const removeFavorite = async (uidToRemove) => {
+    if (!currentUser?.uid) return;
+
+    try {
+      const newFavorites = currentUser.favorites.filter(
+        (favUid) => favUid !== uidToRemove
+      );
+      const userDocRef = doc(db, "users", currentUser.uid);
+      await updateDoc(userDocRef, { favorites: newFavorites });
+
+      setUser({ ...currentUser, favorites: newFavorites });
+    } catch (error) {
+      console.error("Erro ao remover dos favoritos:", error);
+    }
+  };
+
+  const call = (phone) => {
+    if (phone) Linking.openURL(`tel:${phone}`);
+  };
+
+  const sendEmail = (email) => {
+    if (email) Linking.openURL(`mailto:${email}`);
+  };
 
   return (
-    <ImageBackground
-      //source={require("../assets/img_tech3.jpg")}
-      style={styles.background}
-      resizeMode="cover"
-    >
-      <FlatList
-        data={favorites}
-        keyExtractor={(item) => item.id}
-        contentContainerStyle={{
-          padding: 16,
-          paddingTop: Platform.OS === "android" ? StatusBar.currentHeight + 20 : 40,
-        }}
-        renderItem={({ item }) => (
-          <TouchableOpacity
-            style={styles.card}
-            onPress={() => navigation.navigate("EventDetails", { eventId: item.id })}
-          >
-            <Image
-              source={{ uri: item.imageUrl }}
-              style={styles.image}
-              resizeMode="cover"
-            />
-            <Text style={styles.cardTitle}>{item.title}</Text>
-            <Text style={styles.description} numberOfLines={3}>
-              {item.description}
-            </Text>
-          </TouchableOpacity>
-        )}
-      />
-    </ImageBackground>
+    <View style={styles.container}>
+      <Text style={styles.title}>Meus Favoritos</Text>
+
+      {groupedFavorites.length === 0 ? (
+        <Text style={styles.noFav}>Você ainda não tem favoritos.</Text>
+      ) : (
+        <FlatList
+          data={groupedFavorites}
+          keyExtractor={(item) => item.skill}
+          renderItem={({ item }) => (
+            <View style={styles.group}>
+              <Text style={styles.groupTitle}>
+                {skillIcons[formatSkill(item.skill)] || "🔧"} {formatSkill(item.skill)}
+              </Text>
+              {item.users.map((user) => (
+                <View key={user.uid} style={styles.card}>
+                  <View style={styles.headerRow}>
+                    <Text style={styles.header}>{user.fullName || "Sem nome"}</Text>
+                    <TouchableOpacity onPress={() => removeFavorite(user.uid)}>
+                      <Text style={styles.star}>★</Text>
+                    </TouchableOpacity>
+                  </View>
+                  <Text style={styles.text}>Email: {user.email || "N/A"}</Text>
+                  <Text style={styles.text}>Telefone: {user.phone || "N/A"}</Text>
+                  <View style={styles.buttons}>
+                    <TouchableOpacity onPress={() => call(user.phone)} style={styles.button}>
+                      <Text style={styles.buttonText}>Ligar</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity onPress={() => sendEmail(user.email)} style={styles.button}>
+                      <Text style={styles.buttonText}>Email</Text>
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              ))}
+            </View>
+          )}
+        />
+      )}
+    </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    padding: 16,
+    backgroundColor: "#f7f7f7",
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: "bold",
+    marginBottom: 20,
+    color: "#333",
+    textAlign: "center",
+  },
+  noFav: {
+    textAlign: "center",
+    color: "#666",
+    fontSize: 16,
+    marginTop: 30,
+  },
+  group: {
+    marginBottom: 24,
+  },
+  groupTitle: {
+    fontSize: 20,
+    fontWeight: "bold",
+    marginBottom: 10,
+    color: "#4A4A4A",
+    textTransform: "capitalize",
+  },
+  card: {
+    backgroundColor: "#fff",
+    padding: 16,
+    marginBottom: 12,
+    borderRadius: 12,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  headerRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 8,
+  },
+  header: {
+    fontWeight: "700",
+    fontSize: 18,
+    color: "#222",
+  },
+  star: {
+    fontSize: 24,
+    color: "#FFD700",
+  },
+  text: {
+    color: "#444",
+    fontSize: 15,
+    marginVertical: 2,
+  },
+  buttons: {
+    flexDirection: "row",
+    marginTop: 12,
+  },
+  button: {
+    backgroundColor: "#4CAF50",
+    paddingVertical: 8,
+    paddingHorizontal: 18,
+    borderRadius: 30,
+    marginRight: 12,
+  },
+  buttonText: {
+    color: "#fff",
+    fontWeight: "600",
+    fontSize: 14,
+  },
+});
+
+
+
+
+
+
+

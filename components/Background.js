@@ -1,29 +1,28 @@
-// components/Background.js
 import React from "react";
-import { View, StyleSheet, ImageBackground } from "react-native";
+import { ImageBackground, StyleSheet } from "react-native";
 
-const Background = ({ children }) => {
+export default function Background({ children }) {
   return (
     <ImageBackground
-      source={require("../assets/images/fundo.png")}
+      source={{
+        uri: "https://www.transparenttextures.com/patterns/inspiration-geometry.png",
+      }}
+      resizeMode="repeat"
       style={styles.background}
-      resizeMode="cover"
+      imageStyle={styles.image}
     >
-      <View style={styles.overlay}>{children}</View>
+      {children}
     </ImageBackground>
   );
-};
+}
 
 const styles = StyleSheet.create({
   background: {
     flex: 1,
-    justifyContent: "center",
+    backgroundColor: "#3b5998",
+    paddingTop: 40,
   },
-  overlay: {
-    flex: 1,
-    backgroundColor: "#020381", // ou ajuste conforme seu app
-    padding: 20,
+  image: {
+    opacity: 0.6,
   },
 });
-
-export default Background;

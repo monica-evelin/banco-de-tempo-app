@@ -178,12 +178,24 @@ export default function ProfileScreen() {
 
   return (
     <Background>
-      <ScrollView contentContainerStyle={{ padding: 20 }}>
+      <ScrollView
+        style={{ flex: 1 }}
+        contentContainerStyle={{
+          flexGrow: 1,
+          padding: 20,
+          paddingTop: 60,
+        }}
+      >
         <View style={{ alignItems: "center", marginBottom: 20 }}>
           {photoURL ? (
             <Image
               source={{ uri: photoURL }}
-              style={{ width: 120, height: 120, borderRadius: 60 }}
+              style={{
+                width: 120,
+                height: 120,
+                borderRadius: 60,
+                marginTop: 20,
+              }}
             />
           ) : (
             <View
@@ -194,6 +206,7 @@ export default function ProfileScreen() {
                 backgroundColor: "#ccc",
                 justifyContent: "center",
                 alignItems: "center",
+                marginTop: 20,
               }}
             >
               <Text>No photo</Text>
@@ -251,6 +264,7 @@ export default function ProfileScreen() {
           keyboardType="numeric"
           maxLength={10}
         />
+
         <Text style={[styles.login_label, { marginTop: 16 }]}>Phone:</Text>
         <TextInput
           style={styles.login_input}
