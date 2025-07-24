@@ -9,7 +9,7 @@ const styles = StyleSheet.create({
 
   login_container: {
     flex: 1,
-    backgroundColor: "rgba(2, 3, 129, 1)",
+    // backgroundColor: "rgba(2, 3, 129, 1)",
   },
 
   login_input: {
@@ -61,8 +61,8 @@ const styles = StyleSheet.create({
   },
 
   footerImage: {
-    width: 300,
-    height: 300,
+    width: 400,
+    height: 350,
     marginBottom: 10,
   },
 

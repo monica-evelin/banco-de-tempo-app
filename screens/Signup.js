@@ -17,7 +17,7 @@ import { auth, db } from "../firebaseConfig";
 //import styles from "../style/style";
 import { StyleSheet } from "react-native";
 import { MaskedTextInput } from "react-native-mask-text";
-
+import Background from "../components/Background";
 export default function Signup({ navigation }) {
   const [form, setForm] = useState({
     fullName: "",
@@ -154,125 +154,130 @@ export default function Signup({ navigation }) {
   };
 
   return (
-    <KeyboardAvoidingView
-      style={styles.container}
-      //style={{ flex: 1 }}
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-      keyboardVerticalOffset={Platform.OS === "ios" ? 60 : 20}
-    >
-      <ScrollView
-        contentContainerStyle={styles.scroll_container}
-        //contentContainerStyle={{ flexGrow: 1, paddingBottom: 100 }}
-        keyboardShouldPersistTaps="handled"
+    <Background>
+      <KeyboardAvoidingView
+        style={styles.container}
+        //style={{ flex: 1 }}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        keyboardVerticalOffset={Platform.OS === "ios" ? 60 : 20}
       >
-        <View style={styles.login_container}>
-          <Text style={styles.login_label}>Full Name</Text>
-          <TextInput
-            style={styles.login_input}
-            placeholder="Your full name"
-            onChangeText={(text) => handleChange("fullName", text)}
-          />
-
-          <Text style={styles.login_label}>Birth Date</Text>
-          <MaskedTextInput
-            mask="99/99/9999"
-            onChangeText={(text) => handleChange("birthDate", text)}
-            value={form.birthDate}
-            style={styles.login_input}
-            keyboardType="numeric"
-            placeholder="DD/MM/YYYY"
-          />
-
-          <Text style={styles.login_label}>NIF</Text>
-          <TextInput
-            style={styles.login_input}
-            placeholder="Tax ID number"
-            keyboardType="numeric"
-            onChangeText={(text) => handleChange("nif", text)}
-          />
-
-          <Text style={styles.login_label}>Full Address</Text>
-          <TextInput
-            style={styles.login_input}
-            placeholder="Street, number, city"
-            onChangeText={(text) => handleChange("address", text)}
-          />
-          <Text style={styles.login_label}>Phone</Text>
-          <TextInput
-            style={styles.login_input}
-            placeholder="Your phone number"
-            keyboardType="phone-pad"
-            onChangeText={(text) => handleChange("phone", text)}
-            value={form.phone}
-          />
-
-          <Text style={styles.login_label}>What can you offer?</Text>
-          <Picker
-            selectedValue={form.skill}
-            onValueChange={(itemValue) => handleChange("skill", itemValue)}
-            style={styles.login_input}
-          >
-            <Picker.Item label="Select an option" value="" />
-            {availableSkills.map((item) => (
-              <Picker.Item key={item} label={item} value={item} />
-            ))}
-          </Picker>
-
-          <Text style={styles.login_label}>Email</Text>
-          <TextInput
-            style={styles.login_input}
-            placeholder="email@example.com"
-            keyboardType="email-address"
-            autoCapitalize="none"
-            onChangeText={(text) => handleChange("email", text)}
-          />
-
-          <Text style={styles.login_label}>Password</Text>
-          <TextInput
-            style={styles.login_input}
-            secureTextEntry
-            placeholder="Create a password"
-            onChangeText={(text) => handleChange("password", text)}
-          />
-
-          <Text style={styles.login_label}>Confirm Password</Text>
-          <TextInput
-            style={styles.login_input}
-            secureTextEntry
-            placeholder="Repeat your password"
-            onChangeText={(text) => handleChange("confirmPassword", text)}
-            value={form.confirmPassword}
-          />
-
-          <View
-            style={{
-              flexDirection: "row",
-              alignItems: "center",
-              marginVertical: 12,
-            }}
-          >
-            <Checkbox
-              value={form.termsAccepted}
-              onValueChange={(value) => handleChange("termsAccepted", value)}
-              color={form.termsAccepted ? "#4CAF50" : undefined}
+        <ScrollView
+          contentContainerStyle={styles.scroll_container}
+          //contentContainerStyle={{ flexGrow: 1, paddingBottom: 100 }}
+          keyboardShouldPersistTaps="handled"
+        >
+          <View style={styles.login_container}>
+            <Text style={styles.login_label}>Full Name</Text>
+            <TextInput
+              style={styles.login_input}
+              placeholder="Your full name"
+              onChangeText={(text) => handleChange("fullName", text)}
             />
-            <Text style={{ color: "#fff", marginLeft: 8 }}>
-              I accept the terms and conditions.
-            </Text>
+
+            <Text style={styles.login_label}>Birth Date</Text>
+            <MaskedTextInput
+              mask="99/99/9999"
+              onChangeText={(text) => handleChange("birthDate", text)}
+              value={form.birthDate}
+              style={styles.login_input}
+              keyboardType="numeric"
+              placeholder="DD/MM/YYYY"
+            />
+
+            <Text style={styles.login_label}>NIF</Text>
+            <TextInput
+              style={styles.login_input}
+              placeholder="Tax ID number"
+              keyboardType="numeric"
+              onChangeText={(text) => handleChange("nif", text)}
+            />
+
+            <Text style={styles.login_label}>Full Address</Text>
+            <TextInput
+              style={styles.login_input}
+              placeholder="Street, number, city"
+              onChangeText={(text) => handleChange("address", text)}
+            />
+            <Text style={styles.login_label}>Phone</Text>
+            <TextInput
+              style={styles.login_input}
+              placeholder="Your phone number"
+              keyboardType="phone-pad"
+              onChangeText={(text) => handleChange("phone", text)}
+              value={form.phone}
+            />
+
+            <Text style={styles.login_label}>What can you offer?</Text>
+            <Picker
+              selectedValue={form.skill}
+              onValueChange={(itemValue) => handleChange("skill", itemValue)}
+              style={styles.login_input}
+            >
+              <Picker.Item label="Select an option" value="" />
+              {availableSkills.map((item) => (
+                <Picker.Item key={item} label={item} value={item} />
+              ))}
+            </Picker>
+
+            <Text style={styles.login_label}>Email</Text>
+            <TextInput
+              style={styles.login_input}
+              placeholder="email@example.com"
+              keyboardType="email-address"
+              autoCapitalize="none"
+              onChangeText={(text) => handleChange("email", text)}
+            />
+
+            <Text style={styles.login_label}>Password</Text>
+            <TextInput
+              style={styles.login_input}
+              secureTextEntry
+              placeholder="Create a password"
+              onChangeText={(text) => handleChange("password", text)}
+            />
+
+            <Text style={styles.login_label}>Confirm Password</Text>
+            <TextInput
+              style={styles.login_input}
+              secureTextEntry
+              placeholder="Repeat your password"
+              onChangeText={(text) => handleChange("confirmPassword", text)}
+              value={form.confirmPassword}
+            />
+
+            <View
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+                marginVertical: 12,
+              }}
+            >
+              <Checkbox
+                value={form.termsAccepted}
+                onValueChange={(value) => handleChange("termsAccepted", value)}
+                color={form.termsAccepted ? "#4CAF50" : undefined}
+              />
+              <Text style={{ color: "#fff", marginLeft: 8 }}>
+                I accept the terms and conditions.
+              </Text>
+            </View>
+
+            <TouchableOpacity
+              style={styles.login_button}
+              onPress={handleSignup}
+            >
+              <Text style={styles.login_buttonText}>Sign Up</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity onPress={() => navigation.navigate("Login")}>
+              <Text style={styles.login_link}>
+                Already have an account? Log In
+              </Text>
+            </TouchableOpacity>
           </View>
-
-          <TouchableOpacity style={styles.login_button} onPress={handleSignup}>
-            <Text style={styles.login_buttonText}>Sign Up</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity onPress={() => navigation.navigate("Login")}>
-            <Text style={styles.login_link}>
-              Already have an account? Log In
-            </Text>
-          </TouchableOpacity>
-        </View>
-      </ScrollView>
-    </KeyboardAvoidingView>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </Background>
   );
 }
 const styles = StyleSheet.create({
