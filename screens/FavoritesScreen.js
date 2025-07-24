@@ -18,7 +18,6 @@ import {
 } from "firebase/firestore";
 import { useAuth } from "../context/AuthContext";
 
-// Ícones por tipo de serviço
 // Ícones para cada tipo de serviço
 const skillIcons = {
   "Elderly Care": "🧑‍🦽",
