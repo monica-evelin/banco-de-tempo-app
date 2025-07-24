@@ -51,6 +51,7 @@ export default function Signup({ navigation }) {
     const {
       fullName,
       birthDate,
+      phone,
       nif,
       address,
       skill,
@@ -137,6 +138,7 @@ export default function Signup({ navigation }) {
         address,
         skill,
         email,
+        phone,
       });
 
       Alert.alert("Success", "Account created successfully!");

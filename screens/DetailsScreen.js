@@ -58,21 +58,19 @@ export default function DetailsScreen({ route }) {
     });
   };
 
-  const dateObj = compromisso?.dateStr
-    ? new Date(compromisso.dateStr)
-    : new Date();
-
   return (
     <SafeAreaView style={styles.safeArea}>
       <ImageBackground
-        source={require("../assets/images/fundo.png")}
+        source={{
+          uri: "https://www.transparenttextures.com/patterns/inspiration-geometry.png",
+        }}
         style={styles.background}
+        resizeMode="repeat"
       >
         <View style={styles.overlay}>
           <ScrollView contentContainerStyle={styles.content}>
             <Text style={styles.title}>{compromisso?.title || "Details"}</Text>
 
-            <Text style={styles.sectionTitle}></Text>
             {users.length === 0 ? (
               <Text style={styles.noUsers}>
                 No users found for this service.
@@ -134,22 +132,14 @@ export default function DetailsScreen({ route }) {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: "#020381", // azul escuro
-  },
-  container: {
-    flex: 1,
-    position: "relative",
+    backgroundColor: "#3b5998", // azul base
   },
   background: {
     flex: 1,
     width: "100%",
     height: "100%",
   },
-  overlay: {
-    flex: 1,
-    backgroundColor: "rgba(0, 0, 0, 0.01)",
-    paddingTop: 20,
-  },
+
   content: {
     paddingVertical: 30,
     paddingHorizontal: 20,
@@ -160,13 +150,6 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     marginBottom: 20,
     textAlign: "center",
-    color: "#fff",
-    zIndex: 1,
-  },
-  sectionTitle: {
-    fontSize: 20,
-    fontWeight: "600",
-    marginBottom: 10,
     color: "#fff",
     zIndex: 1,
   },

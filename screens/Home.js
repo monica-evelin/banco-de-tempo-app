@@ -278,12 +278,15 @@ export default function HomeScreen() {
       style={{
         flex: 1,
         paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
+        backgroundColor: "#3b5998",
       }}
     >
       <ImageBackground
-        source={BACKGROUND_IMAGE}
-        style={[styles.background, { backgroundColor: "rgba(2, 3, 129, 1)" }]}
-        resizeMode="cover"
+        source={{
+          uri: "https://www.transparenttextures.com/patterns/inspiration-geometry.png",
+        }}
+        style={[styles.background]}
+        resizeMode="repeat"
       >
         <ScrollView
           contentContainerStyle={{ alignItems: "center", paddingBottom: 40 }}
