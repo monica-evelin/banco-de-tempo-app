@@ -6,8 +6,12 @@ import {
   FlatList,
   View,
   ActivityIndicator,
+  TouchableOpacity,
+  Alert,
+  Linking,
 } from "react-native";
 import styles from "../style/style";
+import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 
 // Firebase Modular (v9+)
 import { collection, onSnapshot } from "firebase/firestore";
@@ -35,11 +39,21 @@ export default function SearchServices() {
   }, []);
 
   useEffect(() => {
-    const filtered = users.filter((user) => {
-      const addressMatch = user.address?.toLowerCase().includes(searchAddress.toLowerCase());
-      const skillMatch = user.skill?.toLowerCase().includes(searchSkill.toLowerCase());
-      return addressMatch && skillMatch;
-    });
+    const filtered = users
+      .filter((user) => {
+        const addressMatch = user.address
+          ?.toLowerCase()
+          .includes(searchAddress.toLowerCase());
+        const skillMatch = user.skill
+          ?.toLowerCase()
+          .includes(searchSkill.toLowerCase());
+        return addressMatch && skillMatch;
+      })
+      .sort((a, b) => {
+        if (!a.fullName) return 1;
+        if (!b.fullName) return -1;
+        return a.fullName.localeCompare(b.fullName);
+      });
 
     setFilteredUsers(filtered);
   }, [searchAddress, searchSkill, users]);
@@ -49,12 +63,83 @@ export default function SearchServices() {
       <Text style={styles.cardTitle}>{item.fullName}</Text>
       <Text style={styles.login_label}>Serviço: {item.skill}</Text>
       <Text style={styles.login_label}>Endereço: {item.address}</Text>
+
+      <View
+        style={{
+          flexDirection: "row",
+          alignItems: "center",
+          justifyContent: "center",
+          marginTop: 8,
+        }}
+      >
+        {/* Telefone */}
+        <TouchableOpacity
+          onPress={() =>
+            item.phone
+              ? Linking.openURL(`tel:${item.phone}`)
+              : Alert.alert("Erro", "Número de telefone não disponível.")
+          }
+          style={{ flexDirection: "row", alignItems: "center" }}
+        >
+          <Icon name="phone" size={24} color="#4CAF50" />
+          <Text
+            style={[
+              styles.login_label,
+              {
+                marginLeft: 6,
+                color: "black",
+                textAlign: "center",
+                maxWidth: 150,
+              },
+            ]}
+            numberOfLines={1}
+            ellipsizeMode="tail"
+          >
+            {item.phone || "Não disponível"}
+          </Text>
+        </TouchableOpacity>
+
+        {/* Espaço entre ícones */}
+        <View style={{ width: 20 }} />
+
+        {/* Email */}
+        <TouchableOpacity
+          onPress={() =>
+            item.email
+              ? Linking.openURL(`mailto:${item.email}`)
+              : Alert.alert("Erro", "Email não disponível.")
+          }
+          style={{ flexDirection: "row", alignItems: "center" }}
+        >
+          <Icon name="email-outline" size={24} color="#4CAF50" />
+          <Text
+            style={[
+              styles.login_label,
+              {
+                marginLeft: 6,
+                color: "black",
+                textAlign: "center",
+                maxWidth: 150,
+              },
+            ]}
+            numberOfLines={1}
+            ellipsizeMode="tail"
+          >
+            {item.email || "Não disponível"}
+          </Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 
   if (loading) {
     return (
-      <SafeAreaView style={[styles.login_container, { justifyContent: "center", alignItems: "center" }]}>
+      <SafeAreaView
+        style={[
+          styles.login_container,
+          { justifyContent: "center", alignItems: "center" },
+        ]}
+      >
         <ActivityIndicator size="large" color="#4CAF50" />
       </SafeAreaView>
     );

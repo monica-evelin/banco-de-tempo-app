@@ -11,13 +11,21 @@ import {
   Image,
   ImageBackground,
 } from "react-native";
-import { collection, query, onSnapshot } from "firebase/firestore";
+import {
+  collection,
+  query,
+  onSnapshot,
+  doc,
+  updateDoc,
+} from "firebase/firestore";
 import { db } from "../firebaseConfig";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
+import { useAuth } from "../context/AuthContext";
 
 export default function DetailsScreen({ route }) {
   const { compromisso } = route.params || {};
   const [users, setUsers] = useState([]);
+  const { user: currentUser, setUser } = useAuth();
 
   useEffect(() => {
     if (!compromisso?.tipo) return;
@@ -25,7 +33,7 @@ export default function DetailsScreen({ route }) {
     const q = query(collection(db, "users"));
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const filteredUsers = snapshot.docs
-        .map((doc) => doc.data())
+        .map((doc) => ({ uid: doc.id, ...doc.data() }))
         .filter(
           (user) =>
             user.skill &&
@@ -36,6 +44,26 @@ export default function DetailsScreen({ route }) {
 
     return () => unsubscribe();
   }, [compromisso?.tipo]);
+
+  const toggleFavorite = async (targetUser) => {
+    if (!currentUser?.uid || !targetUser?.uid) {
+      console.warn("UIDs inválidos");
+      return;
+    }
+
+    const userDocRef = doc(db, "users", currentUser.uid);
+    const currentFavorites = currentUser.favorites || [];
+    const alreadyFavorited = currentFavorites.includes(targetUser.uid);
+    const updatedFavorites = alreadyFavorited
+      ? currentFavorites.filter((uid) => uid !== targetUser.uid)
+      : [...currentFavorites, targetUser.uid];
+    try {
+      await updateDoc(userDocRef, { favorites: updatedFavorites });
+      setUser({ ...currentUser, favorites: updatedFavorites });
+    } catch (error) {
+      console.error("Erro ao atualizar favoritos:", error);
+    }
+  };
 
   const contactOptions = (email, phone) => {
     const options = [];
@@ -84,6 +112,20 @@ export default function DetailsScreen({ route }) {
                       <Text style={styles.cardTitle}>
                         {user.fullName || "No name"}
                       </Text>
+                      <TouchableOpacity onPress={() => toggleFavorite(user)}>
+                        <Text
+                          style={[
+                            styles.star,
+                            currentUser?.favorites?.includes(user.uid)
+                              ? styles.starFilled
+                              : styles.starEmpty,
+                          ]}
+                        >
+                          {currentUser?.favorites?.includes(user.uid)
+                            ? "★"
+                            : "☆"}
+                        </Text>
+                      </TouchableOpacity>
                     </View>
                     <View style={styles.row}>
                       <Icon name="email-outline" size={20} color="#4CAF50" />
@@ -215,5 +257,15 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     marginBottom: 10,
+  },
+  star: {
+    fontSize: 22,
+    marginLeft: 10,
+  },
+  starFilled: {
+    color: "#FFD700", // Dourado
+  },
+  starEmpty: {
+    color: "#999", // Cinza claro
   },
 });
