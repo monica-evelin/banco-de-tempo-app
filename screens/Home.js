@@ -50,7 +50,7 @@ function getImageByType(type) {
       return require("../assets/images/babysitting.png");
     case "pet sitting":
       return require("../assets/images/pet_sitting.png");
-    case "housecleaning":
+    case "house cleaning":
       return require("../assets/images/housecleaning.png");
     case "gardening":
       return require("../assets/images/gardening.png");
