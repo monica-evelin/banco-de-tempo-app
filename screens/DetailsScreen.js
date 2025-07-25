@@ -198,6 +198,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
     color: "#fff",
     zIndex: 1,
+    marginTop: 20,
   },
   noUsers: {
     fontSize: 16,
