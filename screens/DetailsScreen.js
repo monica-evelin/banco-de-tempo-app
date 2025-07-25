@@ -109,24 +109,29 @@ export default function DetailsScreen({ route }) {
                   <View style={styles.userInfo}>
                     <View style={styles.row}>
                       <Icon name="account" size={20} color="#4CAF50" />
-                      <Text style={styles.cardTitle}>
-                        {user.fullName || "No name"}
-                      </Text>
-                      <TouchableOpacity onPress={() => toggleFavorite(user)}>
-                        <Text
-                          style={[
-                            styles.star,
+                      <Text style={styles.cardTitle}>{user.fullName || "No name"}</Text>
+
+                      <TouchableOpacity
+                        onPress={() => toggleFavorite(user)}
+                        style={styles.favoriteIcon}
+                      >
+                        <Icon
+                          name="star"
+                          size={28}
+                          color={
                             currentUser?.favorites?.includes(user.uid)
-                              ? styles.starFilled
-                              : styles.starEmpty,
-                          ]}
-                        >
-                          {currentUser?.favorites?.includes(user.uid)
-                            ? "★"
-                            : "☆"}
-                        </Text>
+                              ? "#FFD700"
+                              : "#999"
+                          }
+                          style={
+                            currentUser?.favorites?.includes(user.uid)
+                              ? styles.iconWithBorder
+                              : styles.iconEmpty
+                          }
+                        />
                       </TouchableOpacity>
                     </View>
+
                     <View style={styles.row}>
                       <Icon name="email-outline" size={20} color="#4CAF50" />
                       <Text style={styles.cardDescription}>
@@ -174,14 +179,13 @@ export default function DetailsScreen({ route }) {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: "#3b5998", // azul base
+    backgroundColor: "#3b5998",
   },
   background: {
     flex: 1,
     width: "100%",
     height: "100%",
   },
-
   content: {
     paddingVertical: 30,
     paddingHorizontal: 20,
@@ -247,6 +251,8 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: "#333",
     marginLeft: 10,
+    marginRight: 10,
+    flexShrink: 1,
   },
   cardDescription: {
     fontSize: 14,
@@ -258,14 +264,19 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginBottom: 10,
   },
-  star: {
-    fontSize: 22,
-    marginLeft: 10,
+
+  favoriteIcon: {
+    marginLeft: 5,
   },
-  starFilled: {
-    color: "#FFD700", // Dourado
+
+  iconWithBorder: {
+    borderWidth: 1,
+    borderColor: "#999",
+    borderRadius: 20,
   },
-  starEmpty: {
-    color: "#999", // Cinza claro
+
+  iconEmpty: {
+    color: "#999",
   },
 });
+
