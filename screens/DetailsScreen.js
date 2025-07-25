@@ -19,6 +19,7 @@ import {
   updateDoc,
 } from "firebase/firestore";
 import { db } from "../firebaseConfig";
+import Icon from "react-native-vector-icons/MaterialCommunityIcons"; // Import do ícone
 import { useAuth } from "../context/AuthContext";
 
 export default function DetailsScreen({ route }) {
@@ -86,7 +87,13 @@ export default function DetailsScreen({ route }) {
               users.map((user, index) => (
                 <View key={index} style={styles.userCard}>
                   <View style={styles.userInfo}>
-                    <View style={styles.row}>
+                    <View
+                      style={{
+                        flexDirection: "row",
+                        alignItems: "center",
+                        marginBottom: 10,
+                      }}
+                    >
                       <Text style={styles.cardTitle}>
                         {user.fullName || "No name"}
                       </Text>
@@ -107,17 +114,6 @@ export default function DetailsScreen({ route }) {
                         </Text>
                       </TouchableOpacity>
                     </View>
-
-                    <View style={styles.row}>
-                      <Text style={styles.cardDescription}>
-                        {user.email || "No email"}
-                      </Text>
-                    </View>
-                    <View style={styles.row}>
-                      <Text style={styles.cardDescription}>
-                        {user.phone || "No phone"}
-                      </Text>
-                    </View>
                   </View>
 
                   <Image
@@ -129,13 +125,13 @@ export default function DetailsScreen({ route }) {
                     style={styles.userImage}
                   />
 
-                  {/* Botões separados sem ícones */}
                   <View style={styles.buttonGroup}>
                     {user.email && (
                       <TouchableOpacity
                         style={styles.button}
                         onPress={() => Linking.openURL(`mailto:${user.email}`)}
                       >
+                        <Icon name="email-outline" size={18} color="#fff" />
                         <Text style={styles.buttonText}>Email</Text>
                       </TouchableOpacity>
                     )}
@@ -145,6 +141,7 @@ export default function DetailsScreen({ route }) {
                         style={styles.button}
                         onPress={() => Linking.openURL(`tel:${user.phone}`)}
                       >
+                        <Icon name="phone" size={18} color="#fff" />
                         <Text style={styles.buttonText}>Call</Text>
                       </TouchableOpacity>
                     )}
@@ -169,6 +166,9 @@ const styles = StyleSheet.create({
     width: "100%",
     height: "100%",
   },
+  overlay: {
+    flex: 1,
+  },
   content: {
     paddingVertical: 30,
     paddingHorizontal: 20,
@@ -192,15 +192,19 @@ const styles = StyleSheet.create({
   userCard: {
     backgroundColor: "#fff",
     borderRadius: 15,
-    padding: 16,
+    padding: 20, // aumenta o padding interno
     marginBottom: 30,
     flexDirection: "row",
-    alignItems: "flex-start",
+    alignItems: "center", // centraliza verticalmente os itens
     justifyContent: "space-between",
     position: "relative",
+    width: "100%", // ocupa toda a largura do container pai
+    minHeight: 140, // altura mínima maior para caber tudo
   },
+
   userInfo: {
     flex: 1,
+    justifyContent: "center",
   },
   userImage: {
     width: 64,
@@ -213,7 +217,7 @@ const styles = StyleSheet.create({
   },
   buttonGroup: {
     flexDirection: "row",
-    marginTop: 12,
+    marginTop: 30, // espaçamento vertical entre foto e botões
     position: "absolute",
     bottom: 12,
     right: 16,
@@ -224,32 +228,31 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     borderRadius: 30,
     marginLeft: 12,
-    justifyContent: "center",
+    flexDirection: "row",
     alignItems: "center",
+    justifyContent: "center",
   },
   buttonText: {
     color: "#fff",
     fontWeight: "600",
     fontSize: 14,
+    marginLeft: 6, // espaçamento entre ícone e texto
   },
   cardTitle: {
     fontWeight: "bold",
     fontSize: 16,
     color: "#333",
-    marginLeft: 10,
+    marginLeft: -5,
     marginRight: 10,
     flexShrink: 1,
-  },
-  cardDescription: {
-    fontSize: 14,
-    color: "#666",
-    marginLeft: 10,
+    //marginTop: -50, // sobe o texto um pouco
   },
   row: {
     flexDirection: "row",
     alignItems: "center",
     marginBottom: 10,
   },
+
   favoriteIcon: {
     marginLeft: 5,
   },
