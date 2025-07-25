@@ -64,6 +64,8 @@ export default function ForgotPasswordScreen({ navigation }) {
                 onChangeText={setEmail}
                 keyboardType="email-address"
                 autoCapitalize="none"
+                returnKeyType="done"
+                onSubmitEditing={handleReset}
               />
 
               <TouchableOpacity style={styles.button} onPress={handleReset}>
