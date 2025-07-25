@@ -59,7 +59,6 @@ export default function Signup({ navigation }) {
       password,
       confirmPassword,
       termsAccepted,
-      phone,
     } = form;
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
