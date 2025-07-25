@@ -263,13 +263,16 @@ const styles = StyleSheet.create({
   buttons: {
     flexDirection: "row",
     marginTop: 12,
+    justifyContent: "flex-end",
   },
   button: {
     backgroundColor: "#4CAF50",
     paddingVertical: 8,
     paddingHorizontal: 18,
-    borderRadius: 30,
-    marginRight: 12,
+    borderRadius: 6,
+    marginLeft: 12,
+    width: 80,         
+    alignItems: "center"
   },
   buttonText: {
     color: "#fff",
