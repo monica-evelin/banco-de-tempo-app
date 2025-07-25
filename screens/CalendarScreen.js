@@ -291,26 +291,53 @@ export default function CalendarScreen({ route }) {
             )}
 
             <View style={styles.modalButtons}>
-              <Button
-                title="Cancel"
-                onPress={() => {
-                  setModalVisible(false);
-                  setEditingAppointment(null);
-                }}
-                color="#d32f2f"
-              />
-              <Button title="Save" onPress={saveAppointment} color="#43a047" />
-            </View>
+  <TouchableOpacity
+    onPress={() => {
+      setModalVisible(false);
+      setEditingAppointment(null);
+    }}
+    style={{
+      flex: 1,
+      backgroundColor: "#d32f2f",
+      paddingVertical: 12,
+      alignItems: "center",
+      borderRadius: 6,
+      marginRight: 5,
+    }}
+  >
+    <Text style={{ color: "#fff", fontWeight: "bold" }}>Cancel</Text>
+  </TouchableOpacity>
 
-            {editingAppointment && (
-              <View style={{ marginTop: 10 }}>
-                <Button
-                  title="Delete"
-                  onPress={deleteAppointment}
-                  color="#d32f2f"
-                />
-              </View>
-            )}
+  <TouchableOpacity
+    onPress={saveAppointment}
+    style={{
+      flex: 1,
+      backgroundColor: "#43a047",
+      paddingVertical: 12,
+      alignItems: "center",
+      borderRadius: 6,
+      marginLeft: 5,
+    }}
+  >
+    <Text style={{ color: "#fff", fontWeight: "bold" }}>Save</Text>
+  </TouchableOpacity>
+</View>
+
+{editingAppointment && (
+  <View style={{ marginTop: 10 }}>
+    <TouchableOpacity
+      onPress={deleteAppointment}
+      style={{
+        backgroundColor: "#d32f2f",
+        paddingVertical: 12,
+        alignItems: "center",
+        borderRadius: 6,
+      }}
+    >
+      <Text style={{ color: "#fff", fontWeight: "bold" }}>Delete</Text>
+    </TouchableOpacity>
+  </View>
+)}
           </View>
         </View>
       </Modal>

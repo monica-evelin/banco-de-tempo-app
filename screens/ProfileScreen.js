@@ -290,7 +290,7 @@ export default function ProfileScreen() {
           placeholder="Your address"
         />
 
-        {/* Botões lado a lado corrigidos */}
+        {/* Botões lado a lado */}
         <View
           style={{
             flexDirection: "row",
