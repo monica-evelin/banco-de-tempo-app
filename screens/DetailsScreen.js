@@ -19,12 +19,11 @@ import {
   updateDoc,
 } from "firebase/firestore";
 import { db } from "../firebaseConfig";
-import Icon from "react-native-vector-icons/MaterialCommunityIcons"; // Import do ícone
+import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import { useAuth } from "../context/AuthContext";
 
 export default function DetailsScreen({ route }) {
   const { compromisso } = route.params || {};
-
   const [users, setUsers] = useState([]);
   const { user: currentUser, setUser } = useAuth();
 
@@ -58,6 +57,7 @@ export default function DetailsScreen({ route }) {
     const updatedFavorites = alreadyFavorited
       ? currentFavorites.filter((uid) => uid !== targetUser.uid)
       : [...currentFavorites, targetUser.uid];
+
     try {
       await updateDoc(userDocRef, { favorites: updatedFavorites });
       setUser({ ...currentUser, favorites: updatedFavorites });
@@ -80,74 +80,66 @@ export default function DetailsScreen({ route }) {
             <Text style={styles.title}>{compromisso?.title || "Details"}</Text>
 
             {users.length === 0 ? (
-              <Text style={styles.noUsers}>
-                No users found for this service.
-              </Text>
+              <Text style={styles.noUsers}>No users found for this service.</Text>
             ) : (
-              users.map((user, index) => (
-                <View key={index} style={styles.userCard}>
-                  <View style={styles.userInfo}>
-                    <View
-                      style={{
-                        flexDirection: "row",
-                        alignItems: "center",
-                        marginBottom: 10,
-                      }}
-                    >
-                      <Text style={styles.cardTitle}>
-                        {user.fullName || "No name"}
-                      </Text>
+              users.map((user, index) => {
+                const isFavorite = currentUser?.favorites?.includes(user.uid);
+                return (
+                  <View key={index} style={styles.userCard}>
+                    <View style={styles.row}>
+                      <Image
+                        source={
+                          user.photoURL
+                            ? { uri: user.photoURL }
+                            : require("../assets/images/perfil.png")
+                        }
+                        style={styles.userImage}
+                      />
 
-                      <TouchableOpacity
-                        onPress={() => toggleFavorite(user)}
-                        style={styles.favoriteIcon}
-                      >
-                        <Text
+                      <View style={styles.infoContainer}>
+                        <Text style={styles.cardTitle}>
+                          {user.fullName || "No name"}
+                        </Text>
+
+                        <TouchableOpacity
+                          onPress={() => toggleFavorite(user)}
                           style={[
-                            styles.star,
-                            currentUser?.favorites?.includes(user.uid)
-                              ? styles.starActive
-                              : styles.starInactive,
+                            styles.favoriteIcon,
+                            isFavorite && styles.favoriteIconActive,
                           ]}
                         >
-                          ★
-                        </Text>
-                      </TouchableOpacity>
+                          <Icon
+                            name={isFavorite ? "star" : "star-outline"}
+                            size={28}
+                            color={isFavorite ? "#FFD700" : "#999"}
+                          />
+                        </TouchableOpacity>
+                      </View>
+                    </View>
+
+                    <View style={styles.buttonGroup}>
+                      {user.phone && (
+                        <TouchableOpacity
+                          style={styles.button}
+                          onPress={() => Linking.openURL(`tel:${user.phone}`)}
+                        >
+                          <Icon name="phone" size={18} color="#fff" />
+                          <Text style={styles.buttonText}>Call</Text>
+                        </TouchableOpacity>
+                      )}
+                      {user.email && (
+                        <TouchableOpacity
+                          style={styles.button}
+                          onPress={() => Linking.openURL(`mailto:${user.email}`)}
+                        >
+                          <Icon name="email-outline" size={18} color="#fff" />
+                          <Text style={styles.buttonText}>Email</Text>
+                        </TouchableOpacity>
+                      )}
                     </View>
                   </View>
-
-                  <Image
-                    source={
-                      user.photoURL
-                        ? { uri: user.photoURL }
-                        : require("../assets/images/perfil.png")
-                    }
-                    style={styles.userImage}
-                  />
-
-                  <View style={styles.buttonGroup}>
-                    {user.email && (
-                      <TouchableOpacity
-                        style={styles.button}
-                        onPress={() => Linking.openURL(`mailto:${user.email}`)}
-                      >
-                        <Icon name="email-outline" size={18} color="#fff" />
-                        <Text style={styles.buttonText}>Email</Text>
-                      </TouchableOpacity>
-                    )}
-
-                    {user.phone && (
-                      <TouchableOpacity
-                        style={styles.button}
-                        onPress={() => Linking.openURL(`tel:${user.phone}`)}
-                      >
-                        <Icon name="phone" size={18} color="#fff" />
-                        <Text style={styles.buttonText}>Call</Text>
-                      </TouchableOpacity>
-                    )}
-                  </View>
-                </View>
-              ))
+                );
+              })
             )}
           </ScrollView>
         </View>
@@ -192,81 +184,69 @@ const styles = StyleSheet.create({
   userCard: {
     backgroundColor: "#fff",
     borderRadius: 15,
-    padding: 20, // aumenta o padding interno
+    padding: 20,
     marginBottom: 30,
-    flexDirection: "row",
-    alignItems: "center", // centraliza verticalmente os itens
-    justifyContent: "space-between",
-    position: "relative",
-    width: "100%", // ocupa toda a largura do container pai
-    minHeight: 140, // altura mínima maior para caber tudo
+    width: "100%",
+    minHeight: 140,
   },
-
-  userInfo: {
-    flex: 1,
-    justifyContent: "center",
+  row: {
+    flexDirection: "row",
+    alignItems: "center",
   },
   userImage: {
     width: 64,
     height: 64,
     borderRadius: 32,
-    marginLeft: 16,
-    marginTop: -15,
-    alignSelf: "flex-start",
     backgroundColor: "#ccc",
+    marginRight: 16,
   },
-  buttonGroup: {
-    flexDirection: "row",
-    marginTop: 30, // espaçamento vertical entre foto e botões
-    position: "absolute",
-    bottom: 12,
-    right: 16,
-  },
-  button: {
-    backgroundColor: "#4CAF50",
-    paddingVertical: 8,
-    paddingHorizontal: 20,
-    borderRadius: 30,
-    marginLeft: 12,
+  infoContainer: {
+    flex: 1,
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "center",
-  },
-  buttonText: {
-    color: "#fff",
-    fontWeight: "600",
-    fontSize: 14,
-    marginLeft: 6, // espaçamento entre ícone e texto
+    justifyContent: "space-between",
   },
   cardTitle: {
     fontWeight: "bold",
     fontSize: 16,
     color: "#333",
-    marginLeft: -5,
-    marginRight: 10,
     flexShrink: 1,
-    //marginTop: -50, // sobe o texto um pouco
   },
-  row: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 10,
-  },
-
   favoriteIcon: {
-    marginLeft: 5,
+    width: 40,
+    height: 40,
+    justifyContent: "center",
+    alignItems: "center",
   },
-  star: {
-    fontSize: 24,
-  },
-  starActive: {
-    color: "#FFD700",
-    borderWidth: 1,
+  favoriteIconActive: {
+    borderWidth: 2,
     borderColor: "#999",
     borderRadius: 20,
-    paddingHorizontal: 2,
   },
-  starInactive: {
-    color: "#999",
+  buttonGroup: {
+    flexDirection: "row",
+    marginTop: 20,
+    justifyContent: "flex-end",
+  },
+  button: {
+    backgroundColor: "#4CAF50",
+    paddingVertical: 8,
+    paddingHorizontal: 20,
+    borderRadius: 6,
+    marginLeft: 12,
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  buttonText: {
+    color: "#fff",
+    fontWeight: "600",
+    fontSize: 14,
+    marginLeft: 6,
   },
 });
+
+
+
+
+
+
