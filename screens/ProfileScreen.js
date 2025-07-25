@@ -183,7 +183,7 @@ export default function ProfileScreen() {
         contentContainerStyle={{
           flexGrow: 1,
           padding: 20,
-          paddingTop: 60,
+          paddingTop: 20,
         }}
       >
         <View style={{ alignItems: "center", marginBottom: 20 }}>
@@ -213,7 +213,7 @@ export default function ProfileScreen() {
             </View>
           )}
 
-          <View style={{ flexDirection: "row", marginTop: 10, gap: 10 }}>
+          <View style={{ flexDirection: "row", marginTop: 10, gap: 10, }}>
             <TouchableOpacity
               onPress={takePhoto}
               style={{
