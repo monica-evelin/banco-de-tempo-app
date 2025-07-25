@@ -17,8 +17,7 @@ import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import { collection, onSnapshot } from "firebase/firestore";
 import { db } from "../firebaseConfig";
 
-//Adicionado o componente de fundo com imagem geométrica
-
+// Componente de fundo com imagem geométrica
 import Background from "../components/Background";
 
 export default function SearchServices() {
@@ -62,79 +61,82 @@ export default function SearchServices() {
     setFilteredUsers(filtered);
   }, [searchAddress, searchSkill, users]);
 
-  const renderItem = ({ item }) => (
-    <View style={[styles.card, { marginVertical: 10, padding: 12 }]}>
-      <Text style={styles.cardTitle}>{item.fullName}</Text>
-      <Text style={styles.login_label}>Service: {item.skill}</Text>
-      <Text style={styles.login_label}>Address: {item.address}</Text>
+const renderItem = ({ item }) => (
+  <View style={[styles.card, { marginVertical: 10, padding: 12 }]}>
+    <Text style={styles.cardTitle}>{item.fullName}</Text>
+    <Text style={styles.login_label}>Service: {item.skill}</Text>
+    <Text style={styles.login_label}>Address: {item.address}</Text>
 
-      <View
+    <View
+      style={{
+        flexDirection: "row",
+        justifyContent: "flex-end",
+        marginTop: 0,
+      }}
+    >
+      {/* Botão Call */}
+      <TouchableOpacity
+        onPress={() =>
+          item.phone
+            ? Linking.openURL(`tel:${item.phone}`)
+            : Alert.alert("Erro", "Phone number not available.")
+        }
         style={{
+          backgroundColor: "#4CAF50",
+          paddingVertical: 10,
+          paddingHorizontal: 16,
+          borderRadius: 6,
           flexDirection: "row",
           alignItems: "center",
-          justifyContent: "center",
-          marginTop: 0,
         }}
       >
-        {/* Telefone */}
-        <TouchableOpacity
-          onPress={() =>
-            item.phone
-              ? Linking.openURL(`tel:${item.phone}`)
-              : Alert.alert("Erro", "Phone number not available.")
-          }
-          style={{ flexDirection: "row", alignItems: "center" }}
+        <Icon name="phone" size={20} color="white" />
+        <Text
+          style={{
+            color: "white",
+            fontWeight: "bold",
+            marginLeft: 6,
+          }}
         >
-          <Icon name="phone" size={24} color="#4CAF50" />
-          <Text
-            style={[
-              styles.login_label,
-              {
-                marginLeft: 6,
-                color: "black",
-                textAlign: "center",
-                maxWidth: 150,
-              },
-            ]}
-            numberOfLines={1}
-            ellipsizeMode="tail"
-          >
-            {item.phone || "Not available"}
-          </Text>
-        </TouchableOpacity>
+          Call
+        </Text>
+      </TouchableOpacity>
 
-        {/* Espaço entre ícones */}
-        <View style={{ width: 20 }} />
+      {/* Espaço entre os botões (gap de 2) */}
+      <View style={{ width: 4 }} />
 
-        {/* Email */}
-        <TouchableOpacity
-          onPress={() =>
-            item.email
-              ? Linking.openURL(`mailto:${item.email}`)
-              : Alert.alert("Erro", "Email not available.")
-          }
-          style={{ flexDirection: "row", alignItems: "center" }}
+      {/* Botão Email */}
+      <TouchableOpacity
+        onPress={() =>
+          item.email
+            ? Linking.openURL(`mailto:${item.email}`)
+            : Alert.alert("Erro", "Email not available.")
+        }
+        style={{
+          backgroundColor: "#4CAF50",
+          paddingVertical: 10,
+          paddingHorizontal: 16,
+          borderRadius: 6,
+          flexDirection: "row",
+          alignItems: "center",
+        }}
+      >
+        <Icon name="email-outline" size={20} color="white" />
+        <Text
+          style={{
+            color: "white",
+            fontWeight: "bold",
+            marginLeft: 6,
+          }}
         >
-          <Icon name="email-outline" size={24} color="#4CAF50" />
-          <Text
-            style={[
-              styles.login_label,
-              {
-                marginLeft: 6,
-                color: "black",
-                textAlign: "center",
-                maxWidth: 150,
-              },
-            ]}
-            numberOfLines={1}
-            ellipsizeMode="tail"
-          >
-            {item.email || "Not available"}
-          </Text>
-        </TouchableOpacity>
-      </View>
+          Email
+        </Text>
+      </TouchableOpacity>
     </View>
-  );
+  </View>
+);
+
+
 
   if (loading) {
     return (
@@ -150,22 +152,15 @@ export default function SearchServices() {
   }
 
   return (
-    //  Envolvendo tudo com o fundo geométrico
     <Background>
       <SafeAreaView style={{ flex: 1 }}>
         <FlatList
           data={filteredUsers}
           keyExtractor={(item) => item.id}
           renderItem={renderItem}
-          // Cabeçalho com os inputs separado do FlatList
-
           ListHeaderComponent={
             <View style={styles.scroll_container}>
-              {/*  Título traduzido */}
-
               <Text style={styles.header}>Search for service offers</Text>
-
-              {/*  Labels traduzidas */}
 
               <Text style={styles.login_label}>Address</Text>
               <TextInput
@@ -188,11 +183,6 @@ export default function SearchServices() {
             <Text style={{ color: "#fff", textAlign: "center", marginTop: 10 }}>
               No users found.
             </Text>
-          }
-          contentContainerStyle={
-            {
-              /*paddingBottom: 40*/
-            }
           }
           style={{ marginTop: 20 }}
         />
