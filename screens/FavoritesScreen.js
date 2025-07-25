@@ -17,6 +17,8 @@ import {
   updateDoc,
 } from "firebase/firestore";
 import { useAuth } from "../context/AuthContext";
+import Icon from "react-native-vector-icons/MaterialCommunityIcons";
+
 
 //Importar imagem de fundo
 import Background from "../components/Background";
@@ -176,20 +178,24 @@ export default function FavoritesScreen() {
                     <Text style={styles.text}>
                       Phone: {user.phone || "N/A"}
                     </Text>
-                    <View style={styles.buttons}>
+                   <View style={styles.buttons}>
                       <TouchableOpacity
-                        onPress={() => call(user.phone)}
-                        style={styles.button}
+                       onPress={() => call(user.phone)}
+                       style={styles.button}
                       >
+                        <Icon name="phone" size={20} color="white" />
                         <Text style={styles.buttonText}>Call</Text>
                       </TouchableOpacity>
+                      <View style={{ width: 8 }} />
                       <TouchableOpacity
                         onPress={() => sendEmail(user.email)}
                         style={styles.button}
                       >
-                        <Text style={styles.buttonText}>Email</Text>
+                        <Icon name="email-outline" size={20} color="white" />
+                       <Text style={styles.buttonText}>Email</Text>
                       </TouchableOpacity>
                     </View>
+
                   </View>
                 ))}
               </View>
@@ -267,35 +273,33 @@ const styles = StyleSheet.create({
   },
   button: {
     backgroundColor: "#4CAF50",
-    paddingVertical: 8,
-    paddingHorizontal: 18,
+    paddingVertical: 10,
+    paddingHorizontal: 16,
     borderRadius: 6,
-    marginLeft: 12,
-    width: 80,    
-    alignItems: "center"
+    flexDirection: "row",
+    alignItems: "center",
   },
   buttonText: {
     color: "#fff",
-    fontWeight: "600",
-    fontSize: 14,
+    fontWeight: "bold",
+    marginLeft: 6,
   },
   skillIconWrapper: {
-  backgroundColor: "#fff",
-  borderRadius: 25,
-  width: 40,
-  height: 40,
-  justifyContent: "center",
-  alignItems: "center",
-  marginRight: 8,
+    backgroundColor: "#fff",
+    borderRadius: 25,
+    width: 40,
+    height: 40,
+    justifyContent: "center",
+    alignItems: "center",
+    marginRight: 8,
   },
   skillIconText: {
     fontSize: 20,
   },
   groupTitleRow: {
-  flexDirection: "row",
-  alignItems: "center",
-  marginBottom: 10,
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 10,
   },
-
 
 });
