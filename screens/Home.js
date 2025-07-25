@@ -124,7 +124,7 @@ function translateDescription(desc) {
     return "Computer help and support";
   }
   if (lowerDesc.includes("tutor")) {
-    return "Tutoring services";
+    return "Friendly tutors helping you do better—because we all grow together.";
   }
   return desc;
 }

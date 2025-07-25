@@ -35,7 +35,7 @@ export default function Login({ navigation }) {
     try {
       setLoading(true);
       await signInWithEmailAndPassword(auth, email, password);
-      setMessage("Login successful!");
+      //setMessage("Login successful!");
       //navigation.replace("MainTabs");
     } catch (err) {
       setMessage("Error: " + err.message);

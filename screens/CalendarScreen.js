@@ -367,7 +367,7 @@ const styles = StyleSheet.create({
   appointmentItem: {
     backgroundColor: "#ffffff5e",
     padding: 10,
-    borderRadius: 8,
+    borderRadius: 6,
     marginVertical: 4,
     marginHorizontal: 10,
   },
