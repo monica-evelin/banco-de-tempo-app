@@ -8,6 +8,8 @@ import {
   ScrollView,
   Image,
   ActivityIndicator,
+  KeyboardAvoidingView,
+  Platform,
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import { useAuth } from "../context/AuthContext";
@@ -88,9 +90,7 @@ export default function ProfileScreen() {
   };
 
   const uploadImage = async (uri) => {
-    if (!uri) {
-      throw new Error("Image URI is undefined.");
-    }
+    if (!uri) throw new Error("Image URI is undefined.");
 
     try {
       const response = await fetch(uri);
@@ -128,7 +128,7 @@ export default function ProfileScreen() {
       quality: 1,
     });
 
-    if (!result.canceled && result.assets && result.assets.length > 0) {
+    if (!result.canceled && result.assets?.length > 0) {
       const imageUri = result.assets[0].uri;
       if (!imageUri) {
         Alert.alert("Erro", "Imagem inválida.");
@@ -158,7 +158,7 @@ export default function ProfileScreen() {
       quality: 1,
     });
 
-    if (!result.canceled && result.assets && result.assets.length > 0) {
+    if (!result.canceled && result.assets?.length > 0) {
       const imageUri = result.assets[0].uri;
       if (!imageUri) {
         Alert.alert("Erro", "Imagem inválida.");
@@ -178,161 +178,163 @@ export default function ProfileScreen() {
 
   return (
     <Background>
-      <ScrollView
+      <KeyboardAvoidingView
         style={{ flex: 1 }}
-        contentContainerStyle={{
-          flexGrow: 1,
-          padding: 20,
-          paddingTop: 20,
-        }}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        keyboardVerticalOffset={Platform.OS === "ios" ? 80 : 0}
       >
-        <View style={{ alignItems: "center", marginBottom: 20 }}>
-          {photoURL ? (
-            <Image
-              source={{ uri: photoURL }}
-              style={{
-                width: 120,
-                height: 120,
-                borderRadius: 60,
-                marginTop: 20,
-              }}
-            />
-          ) : (
-            <View
-              style={{
-                width: 120,
-                height: 120,
-                borderRadius: 60,
-                backgroundColor: "#ccc",
-                justifyContent: "center",
-                alignItems: "center",
-                marginTop: 20,
-              }}
-            >
-              <Text>No photo</Text>
-            </View>
-          )}
+        <ScrollView
+          style={{ flex: 1 }}
+          contentContainerStyle={{ flexGrow: 1, padding: 20, paddingTop: 20 }}
+          keyboardShouldPersistTaps="handled"
+        >
+          <View style={{ alignItems: "center", marginBottom: 20 }}>
+            {photoURL ? (
+              <Image
+                source={{ uri: photoURL }}
+                style={{
+                  width: 120,
+                  height: 120,
+                  borderRadius: 60,
+                  marginTop: 20,
+                }}
+              />
+            ) : (
+              <View
+                style={{
+                  width: 120,
+                  height: 120,
+                  borderRadius: 60,
+                  backgroundColor: "#ccc",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  marginTop: 20,
+                }}
+              >
+                <Text>No photo</Text>
+              </View>
+            )}
 
-          <View style={{ flexDirection: "row", marginTop: 10, gap: 10, }}>
+            <View style={{ flexDirection: "row", marginTop: 10, gap: 10 }}>
+              <TouchableOpacity
+                onPress={takePhoto}
+                style={{
+                  backgroundColor: "#4CAF50",
+                  paddingVertical: 8,
+                  paddingHorizontal: 12,
+                  borderRadius: 6,
+                }}
+              >
+                <Text style={{ color: "#fff" }}>Camera</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                onPress={pickImage}
+                style={{
+                  backgroundColor: "#2196F3",
+                  paddingVertical: 8,
+                  paddingHorizontal: 12,
+                  borderRadius: 6,
+                }}
+              >
+                <Text style={{ color: "#fff" }}>Galery</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+
+          <Text style={styles.login_label}>Name:</Text>
+          <TextInput
+            style={styles.login_input}
+            value={name}
+            onChangeText={setName}
+            placeholder="Your name"
+          />
+
+          <Text style={[styles.login_label, { marginTop: 16 }]}>Email:</Text>
+          <TextInput
+            style={styles.login_input}
+            value={user?.email || ""}
+            editable={false}
+          />
+
+          <Text style={[styles.login_label, { marginTop: 16 }]}>Birthdate:</Text>
+          <TextInput
+            style={styles.login_input}
+            value={birthDate}
+            onChangeText={handleBirthdateChange}
+            placeholder="DD/MM/YYYY"
+            keyboardType="numeric"
+            maxLength={10}
+          />
+
+          <Text style={[styles.login_label, { marginTop: 16 }]}>Phone:</Text>
+          <TextInput
+            style={styles.login_input}
+            value={phone}
+            onChangeText={setPhone}
+            placeholder="Your phone number"
+            keyboardType="phone-pad"
+          />
+
+          <Text style={[styles.login_label, { marginTop: 16 }]}>Skill:</Text>
+          <TextInput
+            style={styles.login_input}
+            value={skill}
+            onChangeText={setSkill}
+            placeholder="E.g. Babysitting"
+          />
+
+          <Text style={[styles.login_label, { marginTop: 16 }]}>Address:</Text>
+          <TextInput
+            style={styles.login_input}
+            value={address}
+            onChangeText={setAddress}
+            placeholder="Your address"
+          />
+
+          <View
+            style={{
+              flexDirection: "row",
+              justifyContent: "space-between",
+              gap: 10,
+              marginTop: 20,
+            }}
+          >
             <TouchableOpacity
-              onPress={takePhoto}
               style={{
-                backgroundColor: "#4CAF50",
-                paddingVertical: 8,
-                paddingHorizontal: 12,
+                flex: 1,
+                backgroundColor: "#43a047",
+                alignItems: "center",
+                justifyContent: "center",
+                height: 50,
                 borderRadius: 6,
               }}
+              onPress={handleSave}
+              disabled={loading}
             >
-              <Text style={{ color: "#fff" }}>Camera</Text>
+              {loading ? (
+                <ActivityIndicator color="#fff" />
+              ) : (
+                <Text style={styles.login_buttonText}>Save</Text>
+              )}
             </TouchableOpacity>
 
             <TouchableOpacity
-              onPress={pickImage}
               style={{
-                backgroundColor: "#2196F3",
-                paddingVertical: 8,
-                paddingHorizontal: 12,
+                flex: 1,
+                backgroundColor: "#e53935",
+                alignItems: "center",
+                justifyContent: "center",
+                height: 50,
                 borderRadius: 6,
               }}
+              onPress={logout}
             >
-              <Text style={{ color: "#fff" }}>Galery</Text>
+              <Text style={styles.login_buttonText}>Logout</Text>
             </TouchableOpacity>
           </View>
-        </View>
-
-        <Text style={styles.login_label}>Name:</Text>
-        <TextInput
-          style={styles.login_input}
-          value={name}
-          onChangeText={setName}
-          placeholder="Your name"
-        />
-
-        <Text style={[styles.login_label, { marginTop: 16 }]}>Email:</Text>
-        <TextInput
-          style={styles.login_input}
-          value={user?.email || ""}
-          editable={false}
-        />
-
-        <Text style={[styles.login_label, { marginTop: 16 }]}>Birthdate:</Text>
-        <TextInput
-          style={styles.login_input}
-          value={birthDate}
-          onChangeText={handleBirthdateChange}
-          placeholder="DD/MM/YYYY"
-          keyboardType="numeric"
-          maxLength={10}
-        />
-
-        <Text style={[styles.login_label, { marginTop: 16 }]}>Phone:</Text>
-        <TextInput
-          style={styles.login_input}
-          value={phone}
-          onChangeText={setPhone}
-          placeholder="Your phone number"
-          keyboardType="phone-pad"
-        />
-
-        <Text style={[styles.login_label, { marginTop: 16 }]}>Skill:</Text>
-        <TextInput
-          style={styles.login_input}
-          value={skill}
-          onChangeText={setSkill}
-          placeholder="E.g. Babysitting"
-        />
-
-        <Text style={[styles.login_label, { marginTop: 16 }]}>Address:</Text>
-        <TextInput
-          style={styles.login_input}
-          value={address}
-          onChangeText={setAddress}
-          placeholder="Your address"
-        />
-
-        {/* Botões lado a lado */}
-        <View
-          style={{
-            flexDirection: "row",
-            justifyContent: "space-between",
-            gap: 10,
-            marginTop: 20,
-          }}
-        >
-          <TouchableOpacity
-            style={{
-              flex: 1,
-              backgroundColor: "#43a047",
-              alignItems: "center",
-              justifyContent: "center",
-              height: 50,
-              borderRadius: 6,
-            }}
-            onPress={handleSave}
-            disabled={loading}
-          >
-            {loading ? (
-              <ActivityIndicator color="#fff" />
-            ) : (
-              <Text style={styles.login_buttonText}>Save</Text>
-            )}
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={{
-              flex: 1,
-              backgroundColor: "#e53935",
-              alignItems: "center",
-              justifyContent: "center",
-              height: 50,
-              borderRadius: 6,
-            }}
-            onPress={logout}
-          >
-            <Text style={styles.login_buttonText}>Logout</Text>
-          </TouchableOpacity>
-        </View>
-      </ScrollView>
+        </ScrollView>
+      </KeyboardAvoidingView>
     </Background>
   );
 }
