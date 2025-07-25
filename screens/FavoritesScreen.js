@@ -258,7 +258,7 @@ const styles = StyleSheet.create({
     color: "#222",
   },
   star: {
-    fontSize: 24,
+    fontSize: 28,
     color: "#FFD700",
   },
   text: {
