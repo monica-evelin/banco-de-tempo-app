@@ -18,6 +18,7 @@ import {
 import { auth } from "../firebaseConfig";
 import styles from "../style/style";
 import { SafeAreaView, StatusBar } from "react-native";
+import Background from "../components/Background";
 
 export default function Login({ navigation }) {
   const [email, setEmail] = useState("");
@@ -58,78 +59,82 @@ export default function Login({ navigation }) {
 
   // ------- UI -------------------------------------------------------------
   return (
-    <SafeAreaView
-      style={{
-        flex: 1,
-        paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
-      }}
-    >
-      <KeyboardAvoidingView
-        style={{ flex: 1 }}
-        behavior={Platform.OS === "ios" ? "padding" : undefined}
-        keyboardVerticalOffset={60}
+    <Background>
+      <SafeAreaView
+        style={{
+          flex: 1,
+          paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
+        }}
       >
-        <ScrollView
-          style={styles.login_container}
-          contentContainerStyle={styles.scroll_container}
-          keyboardShouldPersistTaps="handled"
+        <KeyboardAvoidingView
+          style={{ flex: 1 }}
+          behavior={Platform.OS === "ios" ? "padding" : undefined}
+          keyboardVerticalOffset={60}
         >
-          <Text style={styles.login_label}>Email</Text>
-          <TextInput
-            value={email}
-            onChangeText={setEmail}
-            placeholder="email@example.com"
-            style={styles.login_input}
-            autoCapitalize="none"
-            keyboardType="email-address"
-            autoComplete="email"
-            textContentType="emailAddress"
-          />
-
-          <TextInput
-            value={password}
-            onChangeText={setPassword}
-            placeholder="Password"
-            style={styles.login_input}
-            secureTextEntry
-            autoComplete="off"
-            textContentType="none"
-            importantForAutofill="no"
-          />
-
-          <TouchableOpacity
-            style={styles.login_button}
-            onPress={handleLogin}
-            disabled={loading}
+          <ScrollView
+            style={styles.login_container}
+            contentContainerStyle={styles.scroll_container}
+            keyboardShouldPersistTaps="handled"
           >
-            <Text style={styles.login_buttonText}>
-              {loading ? "Logging in..." : "Log In"}
-            </Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity onPress={handleReset}>
-            <Text style={styles.login_link}>Forgot your password?</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity onPress={() => navigation.navigate("Signup")}>
-            <Text style={styles.login_link}>No account? Sign up</Text>
-          </TouchableOpacity>
-
-          {message ? (
-            <Text style={[styles.mensagem, { marginTop: 20 }]}>{message}</Text>
-          ) : null}
-          <View style={styles.footerContainer}>
-            <Image
-              source={require("../assets/login.png")}
-              style={styles.footerImage}
-              resizeMode="contain"
+            <Text style={styles.login_label}>Email</Text>
+            <TextInput
+              value={email}
+              onChangeText={setEmail}
+              placeholder="email@example.com"
+              style={styles.login_input}
+              autoCapitalize="none"
+              keyboardType="email-address"
+              autoComplete="email"
+              textContentType="emailAddress"
             />
-            <Text style={styles.footerText}>
-              Time is precious. Share yours to build a better world.
-            </Text>
-          </View>
-        </ScrollView>
-      </KeyboardAvoidingView>
-    </SafeAreaView>
+
+            <TextInput
+              value={password}
+              onChangeText={setPassword}
+              placeholder="Password"
+              style={styles.login_input}
+              secureTextEntry
+              autoComplete="off"
+              textContentType="none"
+              importantForAutofill="no"
+            />
+
+            <TouchableOpacity
+              style={styles.login_button}
+              onPress={handleLogin}
+              disabled={loading}
+            >
+              <Text style={styles.login_buttonText}>
+                {loading ? "Logging in..." : "Log In"}
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity onPress={handleReset}>
+              <Text style={styles.login_link}>Forgot your password?</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity onPress={() => navigation.navigate("Signup")}>
+              <Text style={styles.login_link}>No account? Sign up</Text>
+            </TouchableOpacity>
+
+            {message ? (
+              <Text style={[styles.mensagem, { marginTop: 20 }]}>
+                {message}
+              </Text>
+            ) : null}
+            <View style={styles.footerContainer}>
+              <Image
+                source={require("../assets/login.png")}
+                style={styles.footerImage}
+                resizeMode="contain"
+              />
+              <Text style={styles.footerText}>
+                Time is precious. Share yours to build a better world.
+              </Text>
+            </View>
+          </ScrollView>
+        </KeyboardAvoidingView>
+      </SafeAreaView>
+    </Background>
   );
 }
