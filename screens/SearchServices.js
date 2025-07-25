@@ -73,7 +73,7 @@ export default function SearchServices() {
           flexDirection: "row",
           alignItems: "center",
           justifyContent: "center",
-          marginTop: 8,
+          marginTop: 0,
         }}
       >
         {/* Telefone */}
@@ -185,7 +185,7 @@ export default function SearchServices() {
             </View>
           }
           ListEmptyComponent={
-            <Text style={{ color: "#fff", textAlign: "center", marginTop: 20 }}>
+            <Text style={{ color: "#fff", textAlign: "center", marginTop: 10 }}>
               No users found.
             </Text>
           }
