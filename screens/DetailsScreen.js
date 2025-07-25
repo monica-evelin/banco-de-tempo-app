@@ -19,11 +19,11 @@ import {
   updateDoc,
 } from "firebase/firestore";
 import { db } from "../firebaseConfig";
-import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import { useAuth } from "../context/AuthContext";
 
 export default function DetailsScreen({ route }) {
   const { compromisso } = route.params || {};
+
   const [users, setUsers] = useState([]);
   const { user: currentUser, setUser } = useAuth();
 
@@ -65,27 +65,6 @@ export default function DetailsScreen({ route }) {
     }
   };
 
-  const contactOptions = (email, phone) => {
-    const options = [];
-    if (email) {
-      options.push({
-        text: "Send Email",
-        onPress: () => Linking.openURL(`mailto:${email}`),
-      });
-    }
-    if (phone) {
-      options.push({
-        text: "Call",
-        onPress: () => Linking.openURL(`tel:${phone}`),
-      });
-    }
-    options.push({ text: "Cancel", style: "cancel" });
-
-    Alert.alert("Contact Options", "Choose an option:", options, {
-      cancelable: true,
-    });
-  };
-
   return (
     <SafeAreaView style={styles.safeArea}>
       <ImageBackground
@@ -108,38 +87,33 @@ export default function DetailsScreen({ route }) {
                 <View key={index} style={styles.userCard}>
                   <View style={styles.userInfo}>
                     <View style={styles.row}>
-                      <Icon name="account" size={20} color="#4CAF50" />
-                      <Text style={styles.cardTitle}>{user.fullName || "No name"}</Text>
+                      <Text style={styles.cardTitle}>
+                        {user.fullName || "No name"}
+                      </Text>
 
                       <TouchableOpacity
                         onPress={() => toggleFavorite(user)}
                         style={styles.favoriteIcon}
                       >
-                        <Icon
-                          name="star"
-                          size={28}
-                          color={
+                        <Text
+                          style={[
+                            styles.star,
                             currentUser?.favorites?.includes(user.uid)
-                              ? "#FFD700"
-                              : "#999"
-                          }
-                          style={
-                            currentUser?.favorites?.includes(user.uid)
-                              ? styles.iconWithBorder
-                              : styles.iconEmpty
-                          }
-                        />
+                              ? styles.starActive
+                              : styles.starInactive,
+                          ]}
+                        >
+                          ★
+                        </Text>
                       </TouchableOpacity>
                     </View>
 
                     <View style={styles.row}>
-                      <Icon name="email-outline" size={20} color="#4CAF50" />
                       <Text style={styles.cardDescription}>
                         {user.email || "No email"}
                       </Text>
                     </View>
                     <View style={styles.row}>
-                      <Icon name="phone" size={20} color="#4CAF50" />
                       <Text style={styles.cardDescription}>
                         {user.phone || "No phone"}
                       </Text>
@@ -155,14 +129,23 @@ export default function DetailsScreen({ route }) {
                     style={styles.userImage}
                   />
 
-                  <View style={styles.buttonContainer}>
-                    {(user.email || user.phone) && (
+                  {/* Botões separados sem ícones */}
+                  <View style={styles.buttonGroup}>
+                    {user.email && (
                       <TouchableOpacity
-                        style={styles.contactButton}
-                        onPress={() => contactOptions(user.email, user.phone)}
+                        style={styles.button}
+                        onPress={() => Linking.openURL(`mailto:${user.email}`)}
                       >
-                        <Icon name="contacts" size={18} color="#fff" />
-                        <Text style={styles.contactButtonText}>Contact</Text>
+                        <Text style={styles.buttonText}>Email</Text>
+                      </TouchableOpacity>
+                    )}
+
+                    {user.phone && (
+                      <TouchableOpacity
+                        style={styles.button}
+                        onPress={() => Linking.openURL(`tel:${user.phone}`)}
+                      >
+                        <Text style={styles.buttonText}>Call</Text>
                       </TouchableOpacity>
                     )}
                   </View>
@@ -228,24 +211,26 @@ const styles = StyleSheet.create({
     alignSelf: "flex-start",
     backgroundColor: "#ccc",
   },
-  buttonContainer: {
+  buttonGroup: {
+    flexDirection: "row",
+    marginTop: 12,
     position: "absolute",
     bottom: 12,
     right: 16,
   },
-  contactButton: {
+  button: {
     backgroundColor: "#4CAF50",
     paddingVertical: 8,
-    paddingHorizontal: 16,
+    paddingHorizontal: 20,
     borderRadius: 30,
-    flexDirection: "row",
-    alignItems: "center",
+    marginLeft: 12,
     justifyContent: "center",
+    alignItems: "center",
   },
-  contactButtonText: {
+  buttonText: {
     color: "#fff",
+    fontWeight: "600",
     fontSize: 14,
-    marginLeft: 8,
   },
   cardTitle: {
     fontWeight: "bold",
@@ -265,19 +250,20 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginBottom: 10,
   },
-
   favoriteIcon: {
     marginLeft: 5,
   },
-
-  iconWithBorder: {
+  star: {
+    fontSize: 24,
+  },
+  starActive: {
+    color: "#FFD700",
     borderWidth: 1,
     borderColor: "#999",
     borderRadius: 20,
+    paddingHorizontal: 2,
   },
-
-  iconEmpty: {
+  starInactive: {
     color: "#999",
   },
 });
-
