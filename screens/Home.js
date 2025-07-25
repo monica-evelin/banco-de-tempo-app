@@ -25,6 +25,8 @@ import {
   where,
 } from "firebase/firestore";
 
+import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
+
 // background image
 const BACKGROUND_IMAGE = require("../assets/images/fundo.png");
 
@@ -48,7 +50,7 @@ function getImageByType(type) {
       return require("../assets/images/babysitting.png");
     case "pet sitting":
       return require("../assets/images/pet_sitting.png");
-    case "housecleaning":
+    case "house cleaning":
       return require("../assets/images/housecleaning.png");
     case "gardening":
       return require("../assets/images/gardening.png");
@@ -122,7 +124,7 @@ function translateDescription(desc) {
     return "Computer help and support";
   }
   if (lowerDesc.includes("tutor")) {
-    return "Tutoring services";
+    return "Friendly tutors helping you do better—because we all grow together.";
   }
   return desc;
 }
@@ -266,7 +268,10 @@ export default function HomeScreen() {
             style={styles.login_button}
             onPress={() => openDetails(c)}
           >
-            <Text style={styles.login_buttonText}>Services</Text>
+            <View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
+              <MaterialCommunityIcons name="plus" size={22} color="#fff" />
+              <Text style={styles.login_buttonText}>Info</Text>
+            </View>
           </TouchableOpacity>
         )}
       </View>

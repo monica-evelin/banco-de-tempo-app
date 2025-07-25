@@ -35,7 +35,7 @@ export default function Login({ navigation }) {
     try {
       setLoading(true);
       await signInWithEmailAndPassword(auth, email, password);
-      setMessage("Login successful!");
+      //setMessage("Login successful!");
       //navigation.replace("MainTabs");
     } catch (err) {
       setMessage("Error: " + err.message);
@@ -109,7 +109,9 @@ export default function Login({ navigation }) {
               </Text>
             </TouchableOpacity>
 
-            <TouchableOpacity onPress={handleReset}>
+            <TouchableOpacity
+              onPress={() => navigation.navigate("ForgotPassword")}
+            >
               <Text style={styles.login_link}>Forgot your password?</Text>
             </TouchableOpacity>
 

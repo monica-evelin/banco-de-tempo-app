@@ -12,7 +12,6 @@ import {
   SafeAreaView,
   Alert,
   ImageBackground,
-  ScrollView,
 } from "react-native";
 import { Calendar } from "react-native-calendars";
 import DateTimePicker from "@react-native-community/datetimepicker";
@@ -203,26 +202,36 @@ export default function CalendarScreen({ route }) {
             }
             ListHeaderComponent={
               <View style={styles.container}>
-                <View style={{ marginTop: 30 }}>
+                <View style={styles.calendarWrapper}>
                   <Calendar
                     onDayPress={onDayPress}
                     markedDates={markedDates}
                     theme={{
-                      backgroundColor: "transparent",
-                      calendarBackground: "transparent",
-                      textSectionTitleColor: "white",
+                      backgroundColor: "#f9f9f9",
+                      calendarBackground: "#f9f9f9",
+                      textSectionTitleColor: "black",
                       selectedDayBackgroundColor: "#43a047",
                       selectedDayTextColor: "white",
                       todayTextColor: "#43a047",
-                      dayTextColor: "white",
-                      monthTextColor: "white",
+                      dayTextColor: "black",
+                      monthTextColor: "black",
                       arrowColor: "#43a047",
-                      disabledDayTextColor: "#555",
+                      disabledDayTextColor: "#ccc",
+                      textMonthFontWeight: "bold",
+                      textDayFontSize: 16,
+                      textMonthFontSize: 18,
+                      textDayHeaderFontSize: 14,
                     }}
+                    style={styles.calendar}
                   />
                 </View>
 
-                <View style={{ marginVertical: 10 }}>
+                <View style={{
+                  paddingVertical: 10,
+                  marginTop: 10,
+                  marginHorizontal: 19, 
+                  borderRadius: 6,
+                }}>
                   <Button
                     title="Add Appointment"
                     onPress={() => {
@@ -250,7 +259,6 @@ export default function CalendarScreen({ route }) {
         </View>
       </ImageBackground>
 
-      {/* Modal fora da estrutura de ScrollView/View */}
       <Modal visible={modalVisible} animationType="slide" transparent={true}>
         <View style={styles.modalBackground}>
           <View style={styles.modalContent}>
@@ -355,9 +363,25 @@ const styles = StyleSheet.create({
     width: "100%",
     height: "100%",
   },
-
+  overlay: {
+    flex: 1,
+  },
   container: {
     paddingBottom: 30,
+  },
+  calendarWrapper: {
+    marginTop: 80,
+    marginHorizontal: 10,
+  },
+  calendar: {
+    borderRadius: 8,
+    elevation: 3,
+    shadowColor: "000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    paddingBottom: 10,
+    marginHorizontal: 10,
   },
   selectedDateText: {
     color: "white",
@@ -365,14 +389,14 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     marginTop: 10,
     marginBottom: 5,
-    paddingHorizontal: 18, // espaçamento lateral
+    paddingHorizontal: 18,
   },
   appointmentItem: {
     backgroundColor: "#ffffff5e",
     padding: 10,
-    borderRadius: 8,
+    borderRadius: 6,
     marginVertical: 4,
-    marginHorizontal: 10, // margens laterais (espaçamento das bordas)
+    marginHorizontal: 10,
   },
   appointmentText: {
     fontSize: 16,
@@ -414,3 +438,4 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
   },
 });
+

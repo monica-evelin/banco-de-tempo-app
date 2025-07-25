@@ -9,8 +9,9 @@ import Login from "./screens/Login";
 import Signup from "./screens/Signup";
 import DetailsScreen from "./screens/DetailsScreen";
 import MainTabs from "./MainTabs";
-
 import TimeExchangeScreen from "./screens/TimeExchangeScreen";
+import TermsScreen from "./screens/TermsScreen"; // Termos e condições
+import ForgotPasswordScreen from "./screens/ForgotPasswordScreen"; // Redefinir senha
 
 const Stack = createNativeStackNavigator();
 
@@ -22,6 +23,7 @@ export default function AppNavigator() {
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         {user ? (
           <>
+            {/* Telas para usuário autenticado */}
             <Stack.Screen name="MainTabs" component={MainTabs} />
             <Stack.Screen
               name="createAppointment"
@@ -36,14 +38,23 @@ export default function AppNavigator() {
           </>
         ) : (
           <>
+            {/* Telas para usuário não autenticado */}
             <Stack.Screen name="Login" component={Login} />
             <Stack.Screen name="Signup" component={Signup} />
+            <Stack.Screen
+              name="ForgotPassword"
+              component={ForgotPasswordScreen}
+            />
           </>
         )}
+
+        {/* Tela de Termos e Condições disponível para todos */}
+        <Stack.Screen
+          name="TermsScreen"
+          component={TermsScreen}
+          options={{ title: "Terms and Conditions" }}
+        />
       </Stack.Navigator>
     </NavigationContainer>
   );
 }
-
-
-

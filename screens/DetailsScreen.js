@@ -19,11 +19,11 @@ import {
   updateDoc,
 } from "firebase/firestore";
 import { db } from "../firebaseConfig";
+import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import { useAuth } from "../context/AuthContext";
 
 export default function DetailsScreen({ route }) {
   const { compromisso } = route.params || {};
-
   const [users, setUsers] = useState([]);
   const { user: currentUser, setUser } = useAuth();
 
@@ -57,6 +57,7 @@ export default function DetailsScreen({ route }) {
     const updatedFavorites = alreadyFavorited
       ? currentFavorites.filter((uid) => uid !== targetUser.uid)
       : [...currentFavorites, targetUser.uid];
+
     try {
       await updateDoc(userDocRef, { favorites: updatedFavorites });
       setUser({ ...currentUser, favorites: updatedFavorites });
@@ -79,78 +80,66 @@ export default function DetailsScreen({ route }) {
             <Text style={styles.title}>{compromisso?.title || "Details"}</Text>
 
             {users.length === 0 ? (
-              <Text style={styles.noUsers}>
-                No users found for this service.
-              </Text>
+              <Text style={styles.noUsers}>No users found for this service.</Text>
             ) : (
-              users.map((user, index) => (
-                <View key={index} style={styles.userCard}>
-                  <View style={styles.userInfo}>
+              users.map((user, index) => {
+                const isFavorite = currentUser?.favorites?.includes(user.uid);
+                return (
+                  <View key={index} style={styles.userCard}>
                     <View style={styles.row}>
-                      <Text style={styles.cardTitle}>
-                        {user.fullName || "No name"}
-                      </Text>
+                      <Image
+                        source={
+                          user.photoURL
+                            ? { uri: user.photoURL }
+                            : require("../assets/images/perfil.png")
+                        }
+                        style={styles.userImage}
+                      />
 
-                      <TouchableOpacity
-                        onPress={() => toggleFavorite(user)}
-                        style={styles.favoriteIcon}
-                      >
-                        <Text
+                      <View style={styles.infoContainer}>
+                        <Text style={styles.cardTitle}>
+                          {user.fullName || "No name"}
+                        </Text>
+
+                        <TouchableOpacity
+                          onPress={() => toggleFavorite(user)}
                           style={[
-                            styles.star,
-                            currentUser?.favorites?.includes(user.uid)
-                              ? styles.starActive
-                              : styles.starInactive,
+                            styles.favoriteIcon,
+                            isFavorite && styles.favoriteIconActive,
                           ]}
                         >
-                          ★
-                        </Text>
-                      </TouchableOpacity>
+                          <Icon
+                            name={isFavorite ? "star" : "star-outline"}
+                            size={28}
+                            color={isFavorite ? "#FFD700" : "#999"}
+                          />
+                        </TouchableOpacity>
+                      </View>
                     </View>
 
-                    <View style={styles.row}>
-                      <Text style={styles.cardDescription}>
-                        {user.email || "No email"}
-                      </Text>
-                    </View>
-                    <View style={styles.row}>
-                      <Text style={styles.cardDescription}>
-                        {user.phone || "No phone"}
-                      </Text>
+                    <View style={styles.buttonGroup}>
+                      {user.phone && (
+                        <TouchableOpacity
+                          style={styles.button}
+                          onPress={() => Linking.openURL(`tel:${user.phone}`)}
+                        >
+                          <Icon name="phone" size={18} color="#fff" />
+                          <Text style={styles.buttonText}>Call</Text>
+                        </TouchableOpacity>
+                      )}
+                      {user.email && (
+                        <TouchableOpacity
+                          style={styles.button}
+                          onPress={() => Linking.openURL(`mailto:${user.email}`)}
+                        >
+                          <Icon name="email-outline" size={18} color="#fff" />
+                          <Text style={styles.buttonText}>Email</Text>
+                        </TouchableOpacity>
+                      )}
                     </View>
                   </View>
-
-                  <Image
-                    source={
-                      user.photoURL
-                        ? { uri: user.photoURL }
-                        : require("../assets/images/perfil.png")
-                    }
-                    style={styles.userImage}
-                  />
-
-                  {/* Botões separados sem ícones */}
-                  <View style={styles.buttonGroup}>
-                    {user.email && (
-                      <TouchableOpacity
-                        style={styles.button}
-                        onPress={() => Linking.openURL(`mailto:${user.email}`)}
-                      >
-                        <Text style={styles.buttonText}>Email</Text>
-                      </TouchableOpacity>
-                    )}
-
-                    {user.phone && (
-                      <TouchableOpacity
-                        style={styles.button}
-                        onPress={() => Linking.openURL(`tel:${user.phone}`)}
-                      >
-                        <Text style={styles.buttonText}>Call</Text>
-                      </TouchableOpacity>
-                    )}
-                  </View>
-                </View>
-              ))
+                );
+              })
             )}
           </ScrollView>
         </View>
@@ -168,6 +157,9 @@ const styles = StyleSheet.create({
     flex: 1,
     width: "100%",
     height: "100%",
+  },
+  overlay: {
+    flex: 1,
   },
   content: {
     paddingVertical: 30,
@@ -192,78 +184,69 @@ const styles = StyleSheet.create({
   userCard: {
     backgroundColor: "#fff",
     borderRadius: 15,
-    padding: 16,
+    padding: 20,
     marginBottom: 30,
-    flexDirection: "row",
-    alignItems: "flex-start",
-    justifyContent: "space-between",
-    position: "relative",
+    width: "100%",
+    minHeight: 140,
   },
-  userInfo: {
-    flex: 1,
+  row: {
+    flexDirection: "row",
+    alignItems: "center",
   },
   userImage: {
     width: 64,
     height: 64,
     borderRadius: 32,
-    marginLeft: 16,
-    marginTop: -15,
-    alignSelf: "flex-start",
     backgroundColor: "#ccc",
+    marginRight: 16,
+  },
+  infoContainer: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  cardTitle: {
+    fontWeight: "bold",
+    fontSize: 16,
+    color: "#333",
+    flexShrink: 1,
+  },
+  favoriteIcon: {
+    width: 40,
+    height: 40,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  favoriteIconActive: {
+    borderWidth: 2,
+    borderColor: "#999",
+    borderRadius: 20,
   },
   buttonGroup: {
     flexDirection: "row",
-    marginTop: 12,
-    position: "absolute",
-    bottom: 12,
-    right: 16,
+    marginTop: 20,
+    justifyContent: "flex-end",
   },
   button: {
     backgroundColor: "#4CAF50",
     paddingVertical: 8,
     paddingHorizontal: 20,
-    borderRadius: 30,
+    borderRadius: 6,
     marginLeft: 12,
-    justifyContent: "center",
+    flexDirection: "row",
     alignItems: "center",
   },
   buttonText: {
     color: "#fff",
     fontWeight: "600",
     fontSize: 14,
-  },
-  cardTitle: {
-    fontWeight: "bold",
-    fontSize: 16,
-    color: "#333",
-    marginLeft: 10,
-    marginRight: 10,
-    flexShrink: 1,
-  },
-  cardDescription: {
-    fontSize: 14,
-    color: "#666",
-    marginLeft: 10,
-  },
-  row: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 10,
-  },
-  favoriteIcon: {
-    marginLeft: 5,
-  },
-  star: {
-    fontSize: 24,
-  },
-  starActive: {
-    color: "#FFD700",
-    borderWidth: 1,
-    borderColor: "#999",
-    borderRadius: 20,
-    paddingHorizontal: 2,
-  },
-  starInactive: {
-    color: "#999",
+    marginLeft: 6,
   },
 });
+
+
+
+
+
+

@@ -11,13 +11,16 @@ import {
 } from "react-native";
 import { Picker } from "@react-native-picker/picker";
 import Checkbox from "expo-checkbox";
-import { createUserWithEmailAndPassword } from "firebase/auth";
+import {
+  createUserWithEmailAndPassword,
+  sendEmailVerification,
+} from "firebase/auth";
 import { doc, setDoc } from "firebase/firestore";
 import { auth, db } from "../firebaseConfig";
-//import styles from "../style/style";
 import { StyleSheet } from "react-native";
 import { MaskedTextInput } from "react-native-mask-text";
 import Background from "../components/Background";
+
 export default function Signup({ navigation }) {
   const [form, setForm] = useState({
     fullName: "",
@@ -136,6 +139,10 @@ export default function Signup({ navigation }) {
       );
       const user = userCredential.user;
 
+      // Envia o e-mail de verificação
+      await sendEmailVerification(user);
+      console.log("E-mail de verificação enviado para:", user.email);
+
       await setDoc(doc(db, "users", user.uid), {
         fullName,
         birthDate,
@@ -146,7 +153,10 @@ export default function Signup({ navigation }) {
         phone,
       });
 
-      Alert.alert("Success", "Account created successfully!");
+      Alert.alert(
+        "Success",
+        "Account created successfully! Please check your email for verification."
+      );
       navigation.replace("MainTabs");
     } catch (error) {
       Alert.alert("Signup Error", error.message);
@@ -157,16 +167,15 @@ export default function Signup({ navigation }) {
     <Background>
       <KeyboardAvoidingView
         style={styles.container}
-        //style={{ flex: 1 }}
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         keyboardVerticalOffset={Platform.OS === "ios" ? 60 : 20}
       >
         <ScrollView
           contentContainerStyle={styles.scroll_container}
-          //contentContainerStyle={{ flexGrow: 1, paddingBottom: 100 }}
           keyboardShouldPersistTaps="handled"
         >
           <View style={styles.login_container}>
+            {/* Campos do formulário */}
             <Text style={styles.login_label}>Full Name</Text>
             <TextInput
               style={styles.login_input}
@@ -198,6 +207,7 @@ export default function Signup({ navigation }) {
               placeholder="Street, number, city"
               onChangeText={(text) => handleChange("address", text)}
             />
+
             <Text style={styles.login_label}>Phone</Text>
             <TextInput
               style={styles.login_input}
@@ -249,6 +259,7 @@ export default function Signup({ navigation }) {
               style={{
                 flexDirection: "row",
                 alignItems: "center",
+                justifyContent: "center", // centraliza horizontalmente o conteúdo
                 marginVertical: 12,
               }}
             >
@@ -257,9 +268,26 @@ export default function Signup({ navigation }) {
                 onValueChange={(value) => handleChange("termsAccepted", value)}
                 color={form.termsAccepted ? "#4CAF50" : undefined}
               />
-              <Text style={{ color: "#fff", marginLeft: 8 }}>
-                I accept the terms and conditions.
-              </Text>
+              <TouchableOpacity
+                onPress={() => navigation.navigate("TermsScreen")}
+              >
+                {/*<View style={{ flexDirection: "row",
+                alignItems: "center",
+                marginVertical: 12, }} >
+                <Checkbox value={form.termsAccepted} onValueChange={(value) => handleChange("termsAccepted", value)} color={form.termsAceito? "#4CAF50" : indefinido} />
+                <Text style={{ color: "#fff", marginLeft: 8 }}> Aceito os termos e condições.
+                </Text>
+                </View>*/}
+                <Text
+                  style={{
+                    color: "#fff",
+                    marginLeft: 8,
+                    textDecorationLine: "underline",
+                  }}
+                >
+                  I accept the terms and conditions.
+                </Text>
+              </TouchableOpacity>
             </View>
 
             <TouchableOpacity
@@ -280,20 +308,11 @@ export default function Signup({ navigation }) {
     </Background>
   );
 }
+
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "transparent",
-  },
-  scroll_container: {
-    paddingHorizontal: 20,
-    paddingVertical: 30,
-  },
-  login_label: {
-    color: "#fff",
-    fontSize: 16,
-    marginBottom: 4,
-  },
+  container: { flex: 1, backgroundColor: "transparent" },
+  scroll_container: { paddingHorizontal: 20, paddingVertical: 30 },
+  login_label: { color: "#fff", fontSize: 16, marginBottom: 4 },
   login_input: {
     backgroundColor: "#fff",
     borderRadius: 8,
@@ -308,11 +327,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginTop: 20,
   },
-  login_buttonText: {
-    color: "#fff",
-    fontSize: 16,
-    fontWeight: "bold",
-  },
+  login_buttonText: { color: "#fff", fontSize: 16, fontWeight: "bold" },
   login_link: {
     color: "#ccc",
     textAlign: "center",
