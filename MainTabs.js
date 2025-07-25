@@ -34,7 +34,7 @@ export default function MainTabs() {
     >
       <Tab.Screen name="Home" component={Home} />
       <Tab.Screen name="Calendar" component={CalendarScreen} />
-      <Tab.Screen name="Pesquisar" component={SearchServices} /> 
+      <Tab.Screen name="Search" component={SearchServices} /> 
       <Tab.Screen name="Favorites" component={FavoritesScreen} />
       <Tab.Screen name="Profile" component={ProfileScreen} />
       
