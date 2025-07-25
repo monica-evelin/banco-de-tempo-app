@@ -21,18 +21,17 @@ import { useAuth } from "../context/AuthContext";
 //Importar imagem de fundo
 import Background from "../components/Background";
 
-// Ícones por tipo de serviço
 // Ícones para cada tipo de serviço
 const skillIcons = {
   "Elderly Care": "🧑‍🦽",
-  Gardening: "🌿",
-  Babysitting: "👶",
-  ComputerHelp: "💻",
-  Cooking: "🍳",
-  Housecleaning: "🧼",
+  "Gardening": "🌿",
+  "Babysitting": "👶",
+  "Computer Help": "💻",
+  "Cooking": "🍳",
+  "House cleaning": "🧼",
   "Pet Sitting": "🐾",
-  Tutoring: "📚",
-  Outro: "🔧", // fallback
+  "Tutoring": "📚",
+  "Outro": "🔧", // fallback
 };
 
 // Função para formatar nome (com espaço e letras maiúsculas corretamente)
@@ -150,10 +149,15 @@ export default function FavoritesScreen() {
             keyExtractor={(item) => item.skill}
             renderItem={({ item }) => (
               <View style={styles.group}>
-                <Text style={styles.groupTitle}>
-                  {skillIcons[formatSkill(item.skill)] || "🔧"}{" "}
-                  {formatSkill(item.skill)}
-                </Text>
+                <View style={styles.groupTitleRow}>
+                  <View style={styles.skillIconWrapper}>
+                    <Text style={styles.skillIconText}>
+                      {skillIcons[formatSkill(item.skill)] || "🔧"}
+                    </Text>
+                  </View>
+                    <Text style={styles.groupTitle}>{formatSkill(item.skill)}</Text>
+                </View>
+
                 {item.users.map((user) => (
                   <View key={user.uid} style={styles.card}>
                     <View style={styles.headerRow}>
@@ -222,7 +226,7 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: "bold",
     marginBottom: 10,
-    color: "fff" /*"#4A4A4A",*/,
+    color: "#fff" /*"#4A4A4A",*/,
     textTransform: "capitalize",
   },
   card: {
@@ -272,4 +276,23 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     fontSize: 14,
   },
+  skillIconWrapper: {
+  backgroundColor: "#fff",
+  borderRadius: 25,
+  width: 40,
+  height: 40,
+  justifyContent: "center",
+  alignItems: "center",
+  marginRight: 8,
+  },
+  skillIconText: {
+    fontSize: 20,
+  },
+  groupTitleRow: {
+  flexDirection: "row",
+  alignItems: "center",
+  marginBottom: 10,
+  },
+
+
 });

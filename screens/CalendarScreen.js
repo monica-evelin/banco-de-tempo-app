@@ -181,69 +181,72 @@ export default function CalendarScreen({ route }) {
         resizeMode="repeat"
       >
         <View style={styles.overlay}>
-          <ScrollView contentContainerStyle={styles.container}>
-            <Calendar
-              onDayPress={onDayPress}
-              markedDates={markedDates}
-              theme={{
-                backgroundColor: "transparent",
-                calendarBackground: "transparent",
-                textSectionTitleColor: "white",
-                selectedDayBackgroundColor: "#43a047",
-                selectedDayTextColor: "white",
-                todayTextColor: "#43a047",
-                dayTextColor: "white",
-                monthTextColor: "white",
-                arrowColor: "#43a047",
-                disabledDayTextColor: "#555",
-              }}
-            />
-
-            <View style={{ marginVertical: 10 }}>
-              <Button
-                title="Add Appointment"
-                onPress={() => {
-                  if (!selectedDate) {
-                    Alert.alert("Please select a date first");
-                    return;
-                  }
-                  setEditingAppointment(null);
-                  setNewTitle("");
-                  setNewTime(new Date());
-                  setModalVisible(true);
-                }}
-                color="#43a047"
-              />
-            </View>
-
-            {selectedDate && (
-              <>
-                <Text style={styles.selectedDateText}>
-                  Appointments on {selectedDate}:
+          <FlatList
+            data={selectedDate ? appointments[selectedDate] || [] : []}
+            keyExtractor={(item) => item.id}
+            renderItem={({ item }) => (
+              <TouchableOpacity
+                style={styles.appointmentItem}
+                onPress={() => openEditModal(item)}
+              >
+                <Text style={styles.appointmentText}>
+                  {item.time} - {item.title}
                 </Text>
-
-                <FlatList
-                  data={appointments[selectedDate] || []}
-                  keyExtractor={(item) => item.id}
-                  renderItem={({ item }) => (
-                    <TouchableOpacity
-                      style={styles.appointmentItem}
-                      onPress={() => openEditModal(item)}
-                    >
-                      <Text style={styles.appointmentText}>
-                        {item.time} - {item.title}
-                      </Text>
-                    </TouchableOpacity>
-                  )}
-                  ListEmptyComponent={
-                    <Text style={{ color: "white", textAlign: "center" }}>
-                      No appointments
-                    </Text>
-                  }
-                />
-              </>
+              </TouchableOpacity>
             )}
-          </ScrollView>
+            ListEmptyComponent={
+              selectedDate && (
+                <Text style={{ color: "white", textAlign: "center" }}>
+                  No appointments
+                </Text>
+              )
+            }
+            ListHeaderComponent={
+              <View style={styles.container}>
+                <View style={{ marginTop: 30 }}>
+                  <Calendar
+                    onDayPress={onDayPress}
+                    markedDates={markedDates}
+                    theme={{
+                      backgroundColor: "transparent",
+                      calendarBackground: "transparent",
+                      textSectionTitleColor: "white",
+                      selectedDayBackgroundColor: "#43a047",
+                      selectedDayTextColor: "white",
+                      todayTextColor: "#43a047",
+                      dayTextColor: "white",
+                      monthTextColor: "white",
+                      arrowColor: "#43a047",
+                      disabledDayTextColor: "#555",
+                    }}
+                  />
+                </View>
+
+                <View style={{ marginVertical: 10 }}>
+                  <Button
+                    title="Add Appointment"
+                    onPress={() => {
+                      if (!selectedDate) {
+                        Alert.alert("Please select a date first");
+                        return;
+                      }
+                      setEditingAppointment(null);
+                      setNewTitle("");
+                      setNewTime(new Date());
+                      setModalVisible(true);
+                    }}
+                    color="#43a047"
+                  />
+                </View>
+
+                {selectedDate && (
+                  <Text style={styles.selectedDateText}>
+                    Appointments on {selectedDate}:
+                  </Text>
+                )}
+              </View>
+            }
+          />
         </View>
       </ImageBackground>
 
@@ -332,13 +335,17 @@ const styles = StyleSheet.create({
   selectedDateText: {
     color: "white",
     fontSize: 18,
-    marginVertical: 10,
+    fontWeight: "bold",
+    marginTop: 10,
+    marginBottom: 5,
+    paddingHorizontal: 18, // espaçamento lateral
   },
   appointmentItem: {
-    backgroundColor: "#e1e1f8",
+    backgroundColor: "#ffffff5e",
     padding: 10,
     borderRadius: 8,
     marginVertical: 4,
+    marginHorizontal: 10, // margens laterais (espaçamento das bordas)
   },
   appointmentText: {
     fontSize: 16,

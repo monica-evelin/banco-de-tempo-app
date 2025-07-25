@@ -9,7 +9,6 @@ import CalendarScreen from "./screens/CalendarScreen"; // pode ser temporária
 import FavoritesScreen from "./screens/FavoritesScreen"; // ajuste o caminho se necessário
 import SearchServices from "./screens/SearchServices";
 
-
 const Tab = createBottomTabNavigator();
 
 export default function MainTabs() {
@@ -24,7 +23,8 @@ export default function MainTabs() {
           else if (route.name === "Profile") icon = "person";
           else if (route.name === "Calendar") icon = "calendar";
           else if (route.name === "Favorites") icon = "star";
-          else if (route.name === "Pesquisar") icon = "search";
+          else if (route.name === "Search") icon = "search";
+          else if (route.name === "Search") icon = "search";
 
           return <Ionicons name={icon} size={size} color={color} />;
         },
@@ -34,14 +34,9 @@ export default function MainTabs() {
     >
       <Tab.Screen name="Home" component={Home} />
       <Tab.Screen name="Calendar" component={CalendarScreen} />
-      <Tab.Screen name="Pesquisar" component={SearchServices} /> 
+      <Tab.Screen name="Search" component={SearchServices} />
       <Tab.Screen name="Favorites" component={FavoritesScreen} />
       <Tab.Screen name="Profile" component={ProfileScreen} />
-      
-     
-
     </Tab.Navigator>
   );
 }
-
-

@@ -3,8 +3,8 @@ import { StyleSheet } from "react-native";
 const styles = StyleSheet.create({
   scroll_container: {
     padding: 24,
-    paddingTop: 60,
-    paddingBottom: 80,
+    paddingTop: 20,
+    paddingBottom: 20,
   },
 
   login_container: {
@@ -99,6 +99,8 @@ const styles = StyleSheet.create({
     fontSize: 22,
     textAlign: "center",
     marginVertical: 10,
+    marginTop: 0,
+    paddingTop: 0,
   },
 
   card: {
