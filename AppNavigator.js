@@ -9,8 +9,10 @@ import Login from "./screens/Login";
 import Signup from "./screens/Signup";
 import DetailsScreen from "./screens/DetailsScreen";
 import MainTabs from "./MainTabs";
-
 import TimeExchangeScreen from "./screens/TimeExchangeScreen";
+
+//Termos e condições
+import TermsScreen from "./screens/TermsScreen";
 
 const Stack = createNativeStackNavigator();
 
@@ -40,10 +42,14 @@ export default function AppNavigator() {
             <Stack.Screen name="Signup" component={Signup} />
           </>
         )}
+
+        {/* Tela de Termos e Condições disponível para todos */}
+        <Stack.Screen
+          name="TermsScreen"
+          component={TermsScreen}
+          options={{ title: "Terms and Conditions" }}
+        />
       </Stack.Navigator>
     </NavigationContainer>
   );
 }
-
-
-
