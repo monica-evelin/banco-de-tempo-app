@@ -25,6 +25,8 @@ import {
   where,
 } from "firebase/firestore";
 
+import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
+
 // background image
 const BACKGROUND_IMAGE = require("../assets/images/fundo.png");
 
@@ -266,7 +268,10 @@ export default function HomeScreen() {
             style={styles.login_button}
             onPress={() => openDetails(c)}
           >
-            <Text style={styles.login_buttonText}>Services</Text>
+            <View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
+              <MaterialCommunityIcons name="plus" size={22} color="#fff" />
+              <Text style={styles.login_buttonText}>Info</Text>
+            </View>
           </TouchableOpacity>
         )}
       </View>
