@@ -290,27 +290,48 @@ export default function ProfileScreen() {
           placeholder="Your address"
         />
 
-        <TouchableOpacity
-          style={[
-            styles.login_button,
-            { marginTop: 20, backgroundColor: "#43a047" },
-          ]}
-          onPress={handleSave}
-          disabled={loading}
+        {/* Botões lado a lado corrigidos */}
+        <View
+          style={{
+            flexDirection: "row",
+            justifyContent: "space-between",
+            gap: 10,
+            marginTop: 20,
+          }}
         >
-          {loading ? (
-            <ActivityIndicator color="#fff" />
-          ) : (
-            <Text style={styles.login_buttonText}>Save Profile</Text>
-          )}
-        </TouchableOpacity>
+          <TouchableOpacity
+            style={{
+              flex: 1,
+              backgroundColor: "#43a047",
+              alignItems: "center",
+              justifyContent: "center",
+              height: 50,
+              borderRadius: 6,
+            }}
+            onPress={handleSave}
+            disabled={loading}
+          >
+            {loading ? (
+              <ActivityIndicator color="#fff" />
+            ) : (
+              <Text style={styles.login_buttonText}>Save</Text>
+            )}
+          </TouchableOpacity>
 
-        <TouchableOpacity
-          style={[styles.logout_button, { marginTop: 20 }]}
-          onPress={logout}
-        >
-          <Text style={styles.login_buttonText}>Logout</Text>
-        </TouchableOpacity>
+          <TouchableOpacity
+            style={{
+              flex: 1,
+              backgroundColor: "#e53935",
+              alignItems: "center",
+              justifyContent: "center",
+              height: 50,
+              borderRadius: 6,
+            }}
+            onPress={logout}
+          >
+            <Text style={styles.login_buttonText}>Logout</Text>
+          </TouchableOpacity>
+        </View>
       </ScrollView>
     </Background>
   );
