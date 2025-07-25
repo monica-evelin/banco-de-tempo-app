@@ -8,6 +8,7 @@ import {
   Alert,
   KeyboardAvoidingView,
   Platform,
+  Image,
 } from "react-native";
 import { sendPasswordResetEmail } from "firebase/auth";
 import { auth } from "../firebaseConfig";
@@ -65,6 +66,13 @@ export default function ForgotPasswordScreen({ navigation }) {
             <Text style={styles.backText}>← Back to Login</Text>
           </TouchableOpacity>
         </View>
+        <View style={styles.footerContainer}>
+          <Image
+            source={require("../assets/images/Forgotpassword.png")}
+            style={styles.footerImage}
+            resizeMode="contain"
+          />
+        </View>
       </KeyboardAvoidingView>
     </Background>
   );
@@ -113,5 +121,26 @@ const styles = StyleSheet.create({
     textAlign: "center",
     color: "#4CAF50",
     fontSize: 15,
+  },
+  footerContainer: {
+    position: "absolute",
+    bottom: 0,
+    width: "100%",
+    alignItems: "center",
+    paddingBottom: 20, //espaço do rodapé
+    backgroundColor: "transparent", //fundo transparente
+  },
+
+  footerImage: {
+    width: 450,
+    height: 350,
+    marginBottom: 0, // sem margem aqui, pois o paddingBottom do container cuida do espaço
+  },
+
+  footerText: {
+    color: "#4CAF50",
+    fontSize: 14,
+    textAlign: "center",
+    marginTop: 5,
   },
 });
