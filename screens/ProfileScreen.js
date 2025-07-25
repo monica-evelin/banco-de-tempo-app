@@ -223,7 +223,7 @@ export default function ProfileScreen() {
                 borderRadius: 6,
               }}
             >
-              <Text style={{ color: "#fff" }}>Tirar Foto</Text>
+              <Text style={{ color: "#fff" }}>Camera</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
@@ -235,7 +235,7 @@ export default function ProfileScreen() {
                 borderRadius: 6,
               }}
             >
-              <Text style={{ color: "#fff" }}>Escolher da Galeria</Text>
+              <Text style={{ color: "#fff" }}>Galery</Text>
             </TouchableOpacity>
           </View>
         </View>
