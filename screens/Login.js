@@ -109,7 +109,9 @@ export default function Login({ navigation }) {
               </Text>
             </TouchableOpacity>
 
-            <TouchableOpacity onPress={handleReset}>
+            <TouchableOpacity
+              onPress={() => navigation.navigate("ForgotPassword")}
+            >
               <Text style={styles.login_link}>Forgot your password?</Text>
             </TouchableOpacity>
 
