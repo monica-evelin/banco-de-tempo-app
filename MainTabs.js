@@ -24,6 +24,7 @@ export default function MainTabs() {
           else if (route.name === "Calendar") icon = "calendar";
           else if (route.name === "Favorites") icon = "star";
           else if (route.name === "Search") icon = "search";
+          else if (route.name === "Search") icon = "search";
 
           return <Ionicons name={icon} size={size} color={color} />;
         },
